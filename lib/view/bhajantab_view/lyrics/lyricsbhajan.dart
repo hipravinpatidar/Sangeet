@@ -3,7 +3,7 @@ import 'package:sangit/ui_helper/custom_colors.dart';
 import 'package:html/parser.dart' as html_parser;
 
 class Lyricsbhajan extends StatefulWidget {
-  const Lyricsbhajan(this.musicLyrics, this.musicName, {super.key});
+  const Lyricsbhajan(this.musicLyrics, this.musicName, {Key? key}):super(key: key);
 
   final String musicLyrics;
   final String musicName;

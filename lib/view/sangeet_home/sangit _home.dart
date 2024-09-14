@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sangit/controller/language_manager.dart';
 import 'package:sangit/model/category_model.dart';
-import 'package:sangit/model/language_model.dart';
 import 'package:sangit/ui_helper/custom_colors.dart';
 import 'package:sangit/view/bhajantab_view/my_favourite/favourita_screen.dart';
 import '../../api_service/api_services.dart';
 import '../bhajantab_view/bhajan_tabs.dart';
 
 class SangitHome extends StatefulWidget {
-  const SangitHome({super.key, required this.myLanguage});
+  const SangitHome({Key? key, required this.myLanguage}):super(key: key);
 
   final String myLanguage;
   @override
@@ -26,15 +25,13 @@ class _SangitHomeState extends State<SangitHome> {
     getCategoryData();
 
     // Call getLanguageData when the widget is first created
-    final languageManager =
-        Provider.of<LanguageManager>(context, listen: false);
+    final languageManager = Provider.of<LanguageManager>(context, listen: false);
     languageManager.getLanguageData();
   }
 
   Future<void> getCategoryData() async {
     try {
-      final Map<String, dynamic> jsonResponse = await ApiService()
-          .getCategory('https://mahakal.rizrv.in/api/v1/sangeet/category');
+      final Map<String, dynamic> jsonResponse = await ApiService().getCategory('https://mahakal.rizrv.in/api/v1/sangeet/category');
 
       if (jsonResponse.containsKey('status') &&
           jsonResponse.containsKey('sangeetCategory') &&
@@ -45,6 +42,7 @@ class _SangitHomeState extends State<SangitHome> {
           categorymodel = categoryModel.sangeetCategory;
           isLoading = false;
         });
+        print(categoryModel);
       } else {
         print(
             "Error: 'status' or 'sangeetCategory' key is missing or null in response.");

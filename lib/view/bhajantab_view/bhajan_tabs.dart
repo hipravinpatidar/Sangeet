@@ -11,7 +11,7 @@ import 'bhajan_list/bhajanlist_screen.dart';
 
 
 class BhajanTabs extends StatefulWidget {
-  const BhajanTabs(this.bannerImage, this.categoryId, this.godName, {super.key});
+  const BhajanTabs(this.bannerImage, this.categoryId, this.godName, {Key? key}):super(key: key);
 
   final String bannerImage;
   final int categoryId;

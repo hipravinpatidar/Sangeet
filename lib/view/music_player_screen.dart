@@ -12,11 +12,11 @@ class MusicPlayer extends HookWidget {
     this.musicData,
     this.categoryId,
     this.subCategoryId, {
-    super.key,
+    Key? key,
     required this.MyCurrentIndex,
     required this.subCategoryModel,
     required this.godName,
-  });
+  }):super(key: key);
 
   final int MyCurrentIndex;
   final List subCategoryModel;
@@ -301,7 +301,7 @@ class CollapsedAppBarContent extends StatelessWidget {
 class BlurredBackdropImage extends StatelessWidget {
   final AudioPlayerManager audioManager;
 
-  const BlurredBackdropImage({super.key, required this.audioManager});
+  const BlurredBackdropImage({Key? key, required this.audioManager}):super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -335,7 +335,7 @@ class BlurredBackdropImage extends StatelessWidget {
 class ExpandedAppBarContent extends StatelessWidget {
   final AudioPlayerManager audioManager;
 
-  ExpandedAppBarContent({super.key, required this.audioManager});
+  ExpandedAppBarContent({Key? key, required this.audioManager}):super(key: key);
 
   String formatDuration(Duration? duration) {
     if (duration == null) return '00:00';

@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:sangit/controller/language_manager.dart';
 import 'package:sangit/model/sangeet_model.dart';
 import 'package:sangit/view/bhajantab_view/lyrics/lyricsbhajan.dart';
-import 'package:sangit/view/scrollingeffect.dart';
+import 'package:sangit/view/music_player_screen.dart';
+
 import '../../../api_service/api_services.dart';
 import '../../../controller/audio_manager.dart';
 import '../../../controller/favourite_manager.dart';
@@ -11,12 +12,12 @@ import '../../../ui_helper/custom_colors.dart';
 
 class BhajanList extends StatefulWidget {
   BhajanList(this.subCategoryId, this.subCategoryModel, this.godName,
-      {super.key,
+      {Key? key,
       required this.categoryId,
       required this.isToggle,
       required this.isFixedTab,
       required this.isAllTab,
-      required this.isMusicBarVisible});
+      required this.isMusicBarVisible}):super(key: key);
 
   int subCategoryId;
   final List subCategoryModel;
@@ -287,12 +288,13 @@ class _BhajanListState extends State<BhajanList> {
                             pageBuilder: (context, animation,
                                     secondaryAnimation) =>
                                 MusicPlayer(
+                                    musiclistdata,
+                                    widget.categoryId,
+                                    widget.subCategoryId,
                                     MyCurrentIndex: audioManager.currentIndex,
                                     subCategoryModel: widget.subCategoryModel,
                                     godName: widget.godName,
-                                    musiclistdata,
-                                    widget.categoryId,
-                                    widget.subCategoryId),
+                                ),
                             transitionsBuilder: (context, animation,
                                 secondaryAnimation, child) {
                               const begin = Offset(0.0, 1.0);

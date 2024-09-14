@@ -7,7 +7,7 @@ import 'dart:math' as math;
 import '../../../controller/audio_manager.dart';
 
 class FavouriteScreen extends StatefulWidget {
-  const FavouriteScreen({super.key});
+  const FavouriteScreen({Key? key}):super(key: key);
 
   @override
   _FavouriteScreenState createState() => _FavouriteScreenState();
