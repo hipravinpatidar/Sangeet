@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final categoryModel = categoryModelFromJson(jsonString);
-
 import 'dart:convert';
 
 CategoryModel categoryModelFromJson(String str) => CategoryModel.fromJson(json.decode(str));
@@ -10,64 +6,52 @@ String categoryModelToJson(CategoryModel data) => json.encode(data.toJson());
 
 class CategoryModel {
   int status;
-  List<SangeetCategory> sangeetCategory;
+  List<Datum> data;
 
   CategoryModel({
     required this.status,
-    required this.sangeetCategory,
+    required this.data,
   });
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) => CategoryModel(
     status: json["status"],
-    sangeetCategory: List<SangeetCategory>.from(json["sangeetCategory"].map((x) => SangeetCategory.fromJson(x))),
+    data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
     "status": status,
-    "sangeetCategory": List<dynamic>.from(sangeetCategory.map((x) => x.toJson())),
+    "data": List<dynamic>.from(data.map((x) => x.toJson())),
   };
 }
 
-class SangeetCategory {
+class Datum {
   int id;
-  String name;
+  String enName;
+  String hiName;
   String image;
   String banner;
-  int status;
-  DateTime createdAt;
-  DateTime updatedAt;
-  List<dynamic> translations;
 
-  SangeetCategory({
+  Datum({
     required this.id,
-    required this.name,
+    required this.enName,
+    required this.hiName,
     required this.image,
     required this.banner,
-    required this.status,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.translations,
   });
 
-  factory SangeetCategory.fromJson(Map<String, dynamic> json) => SangeetCategory(
+  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
     id: json["id"],
-    name: json["name"],
+    enName: json["en_name"],
+    hiName: json["hi_name"],
     image: json["image"],
     banner: json["banner"],
-    status: json["status"],
-    createdAt: DateTime.parse(json["created_at"]),
-    updatedAt: DateTime.parse(json["updated_at"]),
-    translations: List<dynamic>.from(json["translations"].map((x) => x)),
   );
 
   Map<String, dynamic> toJson() => {
     "id": id,
-    "name": name,
+    "en_name": enName,
+    "hi_name": hiName,
     "image": image,
     "banner": banner,
-    "status": status,
-    "created_at": createdAt.toIso8601String(),
-    "updated_at": updatedAt.toIso8601String(),
-    "translations": List<dynamic>.from(translations.map((x) => x)),
   };
 }

@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 class CustomColors {
-
   static const Color clrorange = Color.fromRGBO(246, 123, 10, 1);
   static const Color clrblack = Color.fromRGBO(0, 0, 0, 1);
   static const Color clrgrey = Color.fromRGBO(245, 236, 248, 1);
@@ -14,5 +13,4 @@ class CustomColors {
   static const Color clrggreytxt = Color.fromRGBO(176, 176, 176, 1);
   static const Color clrcont = Color.fromRGBO(223, 231, 253, 0.22);
   static const Color clrborder = Color.fromRGBO(128, 128, 128, 1);
-
 }

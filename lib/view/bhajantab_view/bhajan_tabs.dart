@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
+import 'package:sangit/controller/language_manager.dart';
 import 'package:sangit/ui_helper/custom_colors.dart';
 import 'dart:math' as math;
 import '../../api_service/api_services.dart';
@@ -9,13 +10,13 @@ import '../../controller/audio_manager.dart';
 import '../../model/subcategory_model.dart';
 import 'bhajan_list/bhajanlist_screen.dart';
 
-
 class BhajanTabs extends StatefulWidget {
-  const BhajanTabs(this.bannerImage, this.categoryId, this.godName, {Key? key}):super(key: key);
+  const BhajanTabs(this.bannerImage, this.categoryId, this.godNameEng,this.godNameHindi);
 
   final String bannerImage;
   final int categoryId;
-  final String godName;
+  final String godNameEng;
+  final String godNameHindi;
 
   @override
   _BhajanTabsState createState() => _BhajanTabsState();
@@ -27,9 +28,10 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
   late PageController _pageController;
   late AudioPlayer audioPlayer;
 
-  List<SubCategoryModel> subcategorymodel = <SubCategoryModel>[];
   bool _isLoading = false;
   bool _controllersInitialized = false;
+
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -53,27 +55,46 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  List<Datum> subcategorymodel = [];
+
   Future<void> getSubCategoryData() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final res = await ApiService().getSubCategory(
+      final Map<String, dynamic> res = await ApiService().getSubCategory(
           'https://mahakal.rizrv.in/api/v1/sangeet/get-by-sangeet-category/${widget.categoryId}');
-      List<dynamic> listSubcategory = res;
-      setState(() {
-        subcategorymodel.clear();
-        subcategorymodel
-            .addAll(listSubcategory.map((e) => SubCategoryModel.fromJson(e)));
-        _isLoading = false;
-        _initializeControllers();
-      });
+
+      if (res.containsKey('status') &&
+          res.containsKey('data') &&
+          res['data'] != null) {
+        final SubCategoryModel subCategoryModel =
+            SubCategoryModel.fromJson(res);
+
+        if (subCategoryModel.status == 200) {
+          // check the status code
+          setState(() {
+            subcategorymodel = subCategoryModel.data;
+            _isLoading = false;
+
+            _initializeControllers();
+          });
+        } else {
+          print("Error fetching subcategory data: ${subCategoryModel.status}");
+        }
+      } else {
+        print("Error: 'status' or 'data' key is missing or null in response.");
+      }
     } catch (error) {
       setState(() {
         _isLoading = false;
       });
       print("Error fetching subcategory data: $error");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -111,7 +132,7 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
     var screenHeight = MediaQuery.of(context).size.height;
     var screenWidth = MediaQuery.of(context).size.width;
 
-    List<SubCategoryModel> filteredCategories =
+    List<Datum> filteredCategories =
         subcategorymodel.where((cat) => cat.status != 0).toList();
 
     final List<Widget> tabs = [
@@ -120,45 +141,68 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
         child: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: Colors.grey)),
+              border: Border.all(
+                color: _selectedIndex == 0 ? Colors.transparent : Colors.grey,
+              )),
           child: Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: screenWidth * 0.06, vertical: screenWidth * 0.009),
-            child: Text(
-              "All",
-              style: TextStyle(
-                  fontSize: screenWidth * 0.03, fontWeight: FontWeight.bold),
+            child: Consumer<LanguageManager>(
+              builder: (BuildContext context, languageManager, Widget? child) {
+                return Text(
+                  languageManager.nameLanguage == 'English' ? "All" : "सभी",
+                  style: TextStyle(
+                      fontSize: screenWidth * 0.03,
+                      fontWeight: FontWeight.bold),
+                );
+              },
             ),
           ),
         ),
       ),
-      ...filteredCategories
-          .map(
-            (cat) => Tab(
-              height: 25,
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(color: Colors.grey)),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.06,
-                      vertical: screenWidth * 0.009),
-                  child: Text(
-                    cat.name,
+      ...filteredCategories.map((cat) {
+        int index = filteredCategories.indexOf(cat) + 1;
+        return Tab(
+          height: 25,
+          child: Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(
+                  //color: Colors.grey
+                  color: _selectedIndex == index
+                      ? Colors.transparent
+                      : Colors.grey,
+                )),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.06,
+                  vertical: screenWidth * 0.009),
+              child: Consumer<LanguageManager>(
+                builder:
+                    (BuildContext context, languageManager, Widget? child) {
+                  return Text(
+                    languageManager.nameLanguage == 'English'
+                        ? cat.enName
+                        : cat.hiName,
                     style: TextStyle(
                         fontSize: screenWidth * 0.03,
                         fontWeight: FontWeight.bold),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
           ),
+        );
+      }),
     ];
 
     return Scaffold(
+      backgroundColor: CustomColors.clrwhite,
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(
+              color: CustomColors.clrblack,
+            ))
           : Consumer<AudioPlayerManager>(
               builder: (BuildContext context, audioManager, Widget? child) {
                 return NestedScrollView(
@@ -185,38 +229,48 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
                                       horizontal: screenWidth * 0.04),
                                   child: Row(
                                     children: [
-                                      Column(
-                                        crossAxisAlignment:
+                                      Consumer<LanguageManager>(
+                                        builder: (BuildContext context, languageManager, Widget? child) {
+                                          return Column(
+                                            crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        mainAxisAlignment:
+                                            mainAxisAlignment:
                                             MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          SizedBox(
-                                            width: screenWidth * 0.7,
-                                            child: Text(
-                                              "Divine Music of ${widget.godName}",
-                                              style: TextStyle(
-                                                  fontSize: screenWidth * 0.04,
-                                                  color: CustomColors.clrwhite,
-                                                  fontWeight: FontWeight.w500,
-                                                  overflow:
-                                                      TextOverflow.ellipsis),
-                                              maxLines: 1,
-                                            ),
-                                          ),
-                                          Text(
-                                            "55000 Total Devotee Listened",
-                                            style: TextStyle(
-                                                fontSize: screenWidth * 0.03,
-                                                color: CustomColors.clrggreytxt,
-                                                fontWeight: FontWeight.w500,
-                                                overflow:
-                                                    TextOverflow.ellipsis),
-                                            maxLines: 1,
-                                          ),
-                                        ],
+                                            children: [
+                                              SizedBox(
+                                                  width: screenWidth * 0.7,
+                                                  child:
+                                                  Text.rich(TextSpan(children: [
+                                                    TextSpan(
+                                                       text:  languageManager.nameLanguage == 'English' ? "Divine Music of\n" : "संगीत संग्रह\n",
+
+                                                        // text: "Divine Music of\n",
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                          screenWidth * 0.04,
+                                                          color:
+                                                          CustomColors.clrwhite,
+                                                          fontWeight:
+                                                          FontWeight.w500,
+                                                        )),
+                                                    TextSpan(
+                                                        text:  languageManager.nameLanguage == 'English' ? widget.godNameEng : widget.godNameHindi,
+
+                                                        //  text: widget.godName,
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                          screenWidth * 0.05,
+                                                          color:
+                                                          CustomColors.clrwhite,
+                                                          fontWeight:
+                                                          FontWeight.w500,
+                                                        )),
+                                                  ]))),
+                                            ],
+                                          );
+                                        },
                                       ),
-                                      Spacer(),
+                                      const Spacer(),
                                       IconButton(
                                         onPressed: () {
                                           setState(() {
@@ -231,7 +285,7 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
                                           color: CustomColors.clrwhite,
                                         ),
                                       ),
-                                      SizedBox(width: screenWidth * 0.05)
+                                      SizedBox(width: screenWidth * 0.05),
                                     ],
                                   ),
                                 )
@@ -248,6 +302,12 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
                             child: Container(
                               color: Colors.white,
                               child: TabBar(
+                                onTap: (index) {
+                                  setState(() {
+                                    _selectedIndex =
+                                        index; // Update selected index on tap
+                                  });
+                                },
                                 controller: _tabController,
                                 isScrollable: true,
                                 padding: EdgeInsets.symmetric(
@@ -271,22 +331,27 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
                           child: PageView(
                             controller: _pageController,
                             physics: const NeverScrollableScrollPhysics(),
-                           // children: tabviews,
                             children: [
-
-                              BhajanList(2,subcategorymodel, widget.godName, categoryId: widget.categoryId, isToggle: true, isAllTab: false,
-                                isFixedTab: true, isMusicBarVisible: true,),
-                              ...filteredCategories
-                                  .map((cat) => BhajanList(
-                                cat.id,
+                              BhajanList(
+                                0, // Nothing will Happen By this id.
                                 filteredCategories,
-                                widget.godName,
+                                widget.godNameEng,
                                 categoryId: widget.categoryId,
                                 isToggle: true,
-                                  isAllTab: true,
-                                  isFixedTab: false, isMusicBarVisible: true,
-                              )),
-
+                                isAllTab: false,
+                                isFixedTab: true,
+                                isMusicBarVisible: true,
+                              ),
+                              ...filteredCategories.map((cat) => BhajanList(
+                                    cat.id,
+                                    filteredCategories,
+                                    widget.godNameEng,
+                                    categoryId: widget.categoryId,
+                                    isToggle: true,
+                                    isAllTab: true,
+                                    isFixedTab: false,
+                                    isMusicBarVisible: true,
+                                  )),
                             ],
                           ),
                         )
