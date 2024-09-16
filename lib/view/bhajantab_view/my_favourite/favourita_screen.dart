@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 import 'package:sangit/controller/favourite_manager.dart';
+import 'package:sangit/controller/share_music.dart';
 import 'package:sangit/ui_helper/custom_colors.dart';
 import 'dart:math' as math;
 import '../../../controller/audio_manager.dart';
@@ -15,11 +16,11 @@ class FavouriteScreen extends StatefulWidget {
 
 class _FavouriteScreenState extends State<FavouriteScreen> with TickerProviderStateMixin {
   late AudioPlayer audioPlayer;
-  bool _isLoading = true; // Added to track loading state
 
    late AudioPlayerManager audioManager;
-
    late FavoriteProvider favoriteProvider;
+
+   final shareMusic = ShareMusic();
 
    bool _isMusicBarVisible = true;
 
@@ -69,7 +70,6 @@ class _FavouriteScreenState extends State<FavouriteScreen> with TickerProviderSt
       itemCount: favoriteList.length,
       padding: EdgeInsets.symmetric(vertical: screenWidth * 0.03),
       itemBuilder: (context, index) {
-        final music = favoriteList[index];
 
         return InkWell(
           onTap: () => playMusic(index),
@@ -123,35 +123,18 @@ class _FavouriteScreenState extends State<FavouriteScreen> with TickerProviderSt
                     ],
                   ),
                 ),
-                Spacer(),
-                GestureDetector(
-                  onTap: _showShareBottomSheet,
-                  child: Container(
-                    height: screenWidth * 0.06,
-                    width: screenWidth * 0.06,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(
-                          "https://s3-alpha-sig.figma.com/img/7ffe/2ead/b9d4ea9adb840676bcecff2319aff2e2?Expires=1724025600&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=Q2y8uNeaEkXmyllu9wK8meE7XRhaT4YYNXzO7N9-ztiY3hiZWOaOh64DMLJRFE53dkKcd9yJlxHPSdjZYSDFhI9JMzYS2O9Wo8ODuimUnFYzVlW~upNfNOD6ioMlkdph6oyZMFqdudz42sT8B63wo0M3o2fm00AummkrkoKQftQlbHCFuSfpdVGtkIuOfkoVdwCrjC20TvQhZ38mp1TW87mhNLa6ntBwrQZ1xPb~RvImeFFtsC-DWPDw-6SCn9nIFetXarRnMBC8udktSG7YmIyvH5r5BeBDgs8fLmgSdP4nTJFQiGP3M2KGxVbilRS5CjXIXowOz9GqYOZf1yDAuA__",
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-                Transform.rotate(
-                  angle: -45 * 1.14159 / 180,
-                  child: IconButton(
+              const Spacer(),
+
+                IconButton(
                     icon: Icon(
-                      Icons.notifications_active_sharp,
+                      Icons.offline_share,
                       color: Colors.orange,
                       size: screenWidth * 0.07,
                     ),
                     onPressed: () {
-                      // Handle notification icon tap
+                     // shareMusic.shareSong();
                     },
                   ),
-                ),
                 GestureDetector(
                  onTap: () => _showBottomSheet(favoriteList,index),
                   child: Icon(
@@ -175,7 +158,6 @@ class _FavouriteScreenState extends State<FavouriteScreen> with TickerProviderSt
     final favoriteProvider = Provider.of<FavoriteProvider>(context);
     final favoriteList = favoriteProvider.favoriteList;
 
-    var screenHeight = MediaQuery.of(context).size.height;
     var screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -221,7 +203,7 @@ class _FavouriteScreenState extends State<FavouriteScreen> with TickerProviderSt
                                     ),
                                   ],
                                 ),
-                                Spacer(),
+                                const Spacer(),
                                 IconButton(
                                   onPressed: () {
                                     setState(() {
