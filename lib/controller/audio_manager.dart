@@ -1,4 +1,3 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:sangit/model/sangeet_model.dart';
 import 'package:flutter/material.dart';
@@ -45,8 +44,10 @@ class AudioPlayerManager extends ChangeNotifier with WidgetsBindingObserver {
       await _audioPlayer.setUrl(music.audio);
       _audioPlayer.play();
       _currentMusic = music;
-      _isPlaying = true;
       _currentIndex = _playlist.indexOf(music);
+      _isPlaying = true;
+
+      print("My Songs Length Is ${_playlist.length}");
 
       _audioPlayer.durationStream.listen((duration) {
         _duration = duration ?? Duration.zero;
@@ -62,7 +63,7 @@ class AudioPlayerManager extends ChangeNotifier with WidgetsBindingObserver {
         if (state.processingState == ProcessingState.completed) {
           switch (_shuffleMode) {
             case ShuffleMode.playNext:
-              skipNext();
+              skipNext(); // Automatically skip to next
               break;
             case ShuffleMode.playOnceAndClose:
               pauseMusic();
@@ -103,21 +104,33 @@ class AudioPlayerManager extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void skipNext() {
-    if (_currentIndex + 1 < _playlist.length) {
-      _currentIndex++;
-    } else {
-      _currentIndex = 0;
+    if (_currentMusic != null) {
+      int currentIndexInPlaylist = _playlist.indexOf(_currentMusic!);
+
+      if (currentIndexInPlaylist < _playlist.length - 1) {
+        _currentIndex = currentIndexInPlaylist + 1;
+      } else {
+        _currentIndex = 0;
+      }
+
+      playMusic(_playlist[_currentIndex]);
     }
-    playMusic(_playlist[_currentIndex]);
   }
 
-  void skipPrevious() {
-    if (_currentIndex > 0) {
-      _currentIndex--;
-    } else {
-      _currentIndex = _playlist.length - 1;
+  void skipPrevious({List<Sangeet>? fixedTabMusicList}) {
+    List<Sangeet> playlist = fixedTabMusicList ?? _playlist;
+
+    if (_currentMusic != null) {
+      int currentIndexInPlaylist = playlist.indexOf(_currentMusic!);
+
+      if (currentIndexInPlaylist > 0) {
+        _currentIndex = currentIndexInPlaylist - 1;
+      } else {
+        _currentIndex = playlist.length - 1;
+      }
+
+      playMusic(playlist[_currentIndex]);
     }
-    playMusic(_playlist[_currentIndex]);
   }
 
   void seekTo(Duration position) {
@@ -127,40 +140,6 @@ class AudioPlayerManager extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> _updateNotification() async {
-    if (_currentMusic != null) {
-      await AudioServiceBackground.setMediaItem(
-        MediaItem(
-          id: _currentMusic!.id.toString(),
-          album: _currentMusic!.image ?? '',
-          title: _currentMusic!.title,
-          artist: _currentMusic!.singerName,
-          duration: _duration,
-        ),
-      );
-    }
-
-    await AudioServiceBackground.setState(
-      controls: [
-        MediaControl.skipToPrevious,
-        _isPlaying ? MediaControl.pause : MediaControl.play,
-        MediaControl.skipToNext,
-      ],
-      systemActions: const [
-        MediaAction.seek,
-        MediaAction.skipToNext,
-        MediaAction.skipToPrevious,
-      ],
-      playing: _isPlaying,
-      processingState: AudioProcessingState.ready,
-      position: _currentPosition,
-    );
-  }
-
-
-  @override
-  void dispose() {
-    _audioPlayer.dispose();
-    super.dispose();
+    // Add code for updating the notification with current music info
   }
 }
-
