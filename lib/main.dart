@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sangit/controller/language_manager.dart';
-import 'package:sangit/view/sangeet_home/sangit%20_home.dart';
+import 'package:sangit/view/sangeet_home/sangit_home.dart';
 import 'controller/audio_manager.dart';
 import 'controller/favourite_manager.dart';
 
