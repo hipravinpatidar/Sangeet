@@ -21,5 +21,5 @@ This Is My First Sangeet App Which I Created In Flutter, When I Was I In Learnin
 All these features are implemented using Provider state management.
 
 ### Home Screen
-![Home Screen](assets/screenshots/home_screen.png)
+![Home Screen](https://github.com/hipravinpatidar/Sangeet/tree/master/Homeeng[1].jpg)
 
