@@ -41,6 +41,7 @@ class _SangitHomeState extends State<SangitHome> {
       final Map<String, dynamic> jsonResponse = await ApiService()
           .getCategory('https://mahakal.rizrv.in/api/v1/sangeet/category');
 
+      print(jsonResponse);
       if (jsonResponse.containsKey('status') &&
           jsonResponse.containsKey('data') &&
           jsonResponse['data'] != null) {

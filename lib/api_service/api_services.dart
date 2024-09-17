@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as https;
 
 class ApiService {
   // Category API
   Future<Map<String, dynamic>> getCategory(String url) async {
-    final response = await http.get(Uri.parse(url));
+    final response = await https.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final jsonBody = json.decode(response.body) as Map<String, dynamic>;
       return jsonBody;
@@ -15,14 +15,14 @@ class ApiService {
 
   // SubCategory API
   Future getSubCategory(String url) async {
-    final response = await http.get(Uri.parse(url));
+    final response = await https.get(Uri.parse(url));
     final jsonBody = jsonDecode(response.body);
     return jsonBody;
   }
 
   // Sangeet API
   Future fetchSangeetData(String url) async {
-    final response = await http.get(Uri.parse(url));
+    final response = await https.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       final jsonBody = json.decode(response.body);
@@ -34,7 +34,7 @@ class ApiService {
 
   // All Ctegory API
   Future getAllCategory(String url) async {
-    final response = await http.get(Uri.parse(url));
+    final response = await https.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       final jsonBody = jsonDecode(response.body);
@@ -46,7 +46,7 @@ class ApiService {
 
   // Language API
   Future getLanguage(String url) async {
-    final response = await http.get(Uri.parse(url));
+    final response = await https.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       final jsonBody = jsonDecode(response.body);

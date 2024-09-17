@@ -15,7 +15,7 @@ void main() {
           create: (context) => LanguageManager(),
         ),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
