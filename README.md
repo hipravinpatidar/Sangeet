@@ -1,6 +1,6 @@
 # Sangeet
 
-This Is My First Sangeet App Which I Created In Flutter, When I Was I In Learning Phase.
+This Is My First Sangeet App Which I Created In Flutter, When I Was  In Learning Phase.
 ## Getting Started
 
 # Key Features
