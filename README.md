@@ -20,6 +20,6 @@ This Is My First Sangeet App Which I Created In Flutter, When I Was I In Learnin
  
 All these features are implemented using Provider state management.
 
-![Homeeng](https://github.com/user-attachments/assets/43ba044c-441d-42ef-81bf-76c76a999142)
+
 
 
