@@ -19,6 +19,7 @@ This Is My First Sangeet App Which I Created In Flutter, When I Was I In Learnin
 3) Automatically play the next track
  
 All these features are implemented using Provider state management.
+![Homeeng](https://github.com/user-attachments/assets/99d1c02a-34c8-4a69-8b67-a77ccf07809d)
 
 
 
