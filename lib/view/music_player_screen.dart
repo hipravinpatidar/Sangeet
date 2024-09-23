@@ -35,8 +35,10 @@ class MusicPlayer extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    const collapsedBarHeight = 100.0;
-    const expandedBarHeight = 500.0;
+   // const collapsedBarHeight = 100.0;
+   // const expandedBarHeight = 500.0;
+   var expandedBarHeight = MediaQuery.of(context).size.height * 0.6;
+   var collapsedBarHeight = MediaQuery.of(context).size.height * 0.1;
 
     final selectedIndex = useState(0);
     final scrollController = useScrollController();
@@ -162,7 +164,6 @@ class MusicPlayer extends HookWidget {
                           preferredSize: const Size.fromHeight(80.0),
                           child: Container(
                             width: double.infinity,
-                            height: 120,
                             decoration: const BoxDecoration(
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(20),
@@ -298,7 +299,7 @@ class _CollapsedAppBarContentState extends State<CollapsedAppBarContent> {
       builder: (BuildContext context, audioManager, Widget? child) {
         return Padding(
           padding: EdgeInsets.symmetric(
-              horizontal: screenWidth * 0.02, vertical: screenWidth * 0.04),
+              horizontal: screenWidth * 0.02, vertical: screenWidth * 0.08),
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
               height: screenHeight * 0.05,
