@@ -74,7 +74,7 @@ class _SangitHomeState extends State<SangitHome> {
 
     final List<Widget> tabs = [
       Tab(
-        height: 60,
+        height: MediaQuery.of(context).size.width / 6.5,
         child: Column(
           children: [
             Icon(Icons.favorite_border_sharp,
@@ -100,7 +100,7 @@ class _SangitHomeState extends State<SangitHome> {
         ),
       ),
       ...categorymodel.map((cat) => Tab(
-            height: 60,
+        height: MediaQuery.of(context).size.width / 6.5,
             child: Column(
               children: [
                 Container(
