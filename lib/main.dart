@@ -11,9 +11,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (context) => AudioPlayerManager()),
         ChangeNotifierProvider(create: (context) => FavoriteProvider()),
-        ChangeNotifierProvider(
-          create: (context) => LanguageManager(),
-        ),
+        ChangeNotifierProvider(create: (context) => LanguageManager(),),
       ],
       child: const MyApp(),
     ),
