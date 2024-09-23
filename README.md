@@ -1,4 +1,4 @@
-# Sangeet
+# Music Player App
 
 This Is My First Sangeet App Which I Created In Flutter, When I Was  In Learning Phase.
 ## Getting Started
