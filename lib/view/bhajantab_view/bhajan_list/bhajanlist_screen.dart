@@ -34,9 +34,13 @@ class BhajanList extends StatefulWidget {
 
 class _BhajanListState extends State<BhajanList>
     with SingleTickerProviderStateMixin {
+
   late AudioPlayerManager audioManager;
   late bool _isMusicBarVisible;
+
   bool _isLoading = true;
+   //bool _noData = true;
+   bool _noData = false;
   final shareMusic = ShareMusic();
 
   @override
@@ -101,17 +105,21 @@ class _BhajanListState extends State<BhajanList>
           // musiclistdata = sangeetModel.sangeet;
           audioManager.setPlaylist(musiclistdata);
           _isLoading = false;
+          _noData = false;
         });
       } else {
         print("Error: The response is null or improperly formatted.");
         setState(() {
           _isLoading = false;
+          _noData = musiclistdata.isEmpty;
+          _noData = true;
         });
       }
     } catch (error) {
       print("Failed to fetch music data: $error");
       setState(() {
         _isLoading = false;
+        _noData = true;
       });
     }
   }
@@ -128,12 +136,35 @@ class _BhajanListState extends State<BhajanList>
         "https://mahakal.rizrv.in/api/v1/sangeet/sangeet-all-details?category_id=${widget.categoryId}&language=$currentLanguage",
       );
 
-      final List<Sangeet> categoryList = (res as List).map((e) => Sangeet.fromJson(e)).toList();
-      setState(() {
-        allcategorymodel = categoryList.where((item) => item.status == 1).toList();
-      });
+      // if(res!=null){
+      //
+      //   setState(() {
+      //     _noData = false;
+      //   });
+
+        final List<Sangeet> categoryList = (res as List).map((e) => Sangeet.fromJson(e)).toList();
+        setState(() {
+          allcategorymodel = categoryList.where((item) => item.status == 1).toList();
+          _noData = allcategorymodel.isEmpty;
+        });
+
+
+    //  }
+    //   else{
+    //
+    //     setState(() {
+    //       _noData = true;
+    //     });
+    //
+    //   }
+
+
     } catch (error) {
       print("Failed to fetch all category data: $error");
+      setState(() {
+       // _noData = true;
+
+      });
     }
   }
 
@@ -169,7 +200,10 @@ class _BhajanListState extends State<BhajanList>
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return ListView.builder(
+    return
+    _noData? Center(child: Text("No Data Here")):
+
+    ListView.builder(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: widget.isFixedTab
@@ -310,6 +344,8 @@ class _BhajanListState extends State<BhajanList>
             children: [
               _isLoading
                   ? const Center(child: CircularProgressIndicator(color: CustomColors.clrblack,))
+                 // : _noData
+                 // ? Center(child: Text("${"No Data"}", style: TextStyle(color: CustomColors.clrblack),))
                   : RefreshIndicator(
                       onRefresh: _handleRefresh,
                       backgroundColor: CustomColors.clrwhite,
@@ -551,7 +587,7 @@ class _BhajanListState extends State<BhajanList>
                         Navigator.pop(context);
                       },
                       child: Icon(
-                        Icons.dangerous,
+                        Icons.cancel_presentation,
                         size: screenWidth * 0.06,
                         color: CustomColors.clrblack,
                       ),

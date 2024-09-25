@@ -9,6 +9,7 @@ import 'package:sangit/controller/share_music.dart';
 import 'package:sangit/model/sangeet_model.dart';
 import 'package:sangit/view/bhajantab_view/bhajan_list/bhajanlist_screen.dart';
 import 'package:sangit/view/bhajantab_view/lyrics/lyricsbhajan.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../ui_helper/custom_colors.dart';
 
 class MusicPlayer extends HookWidget {
@@ -37,8 +38,8 @@ class MusicPlayer extends HookWidget {
   Widget build(BuildContext context) {
    // const collapsedBarHeight = 100.0;
    // const expandedBarHeight = 500.0;
-   var expandedBarHeight = MediaQuery.of(context).size.height * 0.6;
-   var collapsedBarHeight = MediaQuery.of(context).size.height * 0.1;
+   var expandedBarHeight = MediaQuery.of(context).size.height * 0.62;
+   var collapsedBarHeight = MediaQuery.of(context).size.height * 0.12;
 
     final selectedIndex = useState(0);
     final scrollController = useScrollController();
@@ -442,13 +443,12 @@ class BlurredBackdropImage extends StatelessWidget {
 
           BackdropFilter(
             filter: ImageFilter.blur(
-                sigmaX: 1.5,
+              sigmaX: 1.5,
                 sigmaY: 1.5), // Adjust the sigma values for more or less blur
-            child: Container(
-              color: Colors.black.withOpacity(
-                  0), // Transparent container to allow the blur effect
+           child:
+            Container(color: Colors.black.withOpacity(0), // Transparent container to allow the blur effect
             ),
-          ),
+         ),
         ],
       ),
     );
@@ -483,14 +483,13 @@ class _ExpandedAppBarContentState extends State<ExpandedAppBarContent> {
   final shareMusic = ShareMusic();
 
   void _showShuffleOptionsDialog(BuildContext context,
-      AudioPlayerManager audioManager, int selectedIndex) {
+      AudioPlayerManager audioManager) {
     showDialog(
       context: context,
       builder: (context) {
 
         return ShuffleOptionsDialog(
           audioManager: audioManager,
-          selectedIndex: selectedIndex,
         );
       },
     );
@@ -529,22 +528,21 @@ class _ExpandedAppBarContentState extends State<ExpandedAppBarContent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                height: screenWidth * 0.05,
+                height: screenWidth * 0.15,
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
-                child: Column(
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: Transform.rotate(
-                        angle: 4.7,
-                        child: Icon(Icons.arrow_back_ios_rounded,
-                            size: screenWidth * 0.06,
+                      icon: Icon(Icons.arrow_back_ios_rounded,
+                            size: screenWidth * 0.07,
                             color: CustomColors.clrwhite),
-                      ),
                     ),
 
+                    SizedBox(width: screenWidth * 0.60,),
                     GestureDetector(
                         onTap: () {
                           shareMusic.shareSong(audiomanager.currentMusic!);
@@ -554,7 +552,7 @@ class _ExpandedAppBarContentState extends State<ExpandedAppBarContent> {
                           color: CustomColors.clrwhite,
                           size: screenWidth * 0.06,
                         )),
-                    SizedBox(height: screenWidth * 0.05),
+                    SizedBox(height: screenWidth * 0.05,width: screenWidth * 0.06,),
                     GestureDetector(
                         onTap: () {
                           Navigator.push(
@@ -573,7 +571,7 @@ class _ExpandedAppBarContentState extends State<ExpandedAppBarContent> {
                 ),
               ),
               SizedBox(
-                height: screenWidth * 0.2,
+                height: screenWidth * 0.24,
               ),
               Center(
                 child: Column(
@@ -658,7 +656,7 @@ class _ExpandedAppBarContentState extends State<ExpandedAppBarContent> {
                   children: [
                     GestureDetector(
                         onTap: () =>
-                            _showShuffleOptionsDialog(context, audiomanager, 0),
+                            _showShuffleOptionsDialog(context, audiomanager),
                         child: Icon(Icons.shuffle,
                             size: screenWidth * 0.08,
                             color: CustomColors.clrwhite)),
@@ -744,11 +742,9 @@ class _ExpandedAppBarContentState extends State<ExpandedAppBarContent> {
 
 class ShuffleOptionsDialog extends StatefulWidget {
   final AudioPlayerManager audioManager;
-  final int selectedIndex; // Pass the selected index to the dialog
 
   const ShuffleOptionsDialog({
     required this.audioManager,
-    required this.selectedIndex,
   });
 
   @override
@@ -756,211 +752,144 @@ class ShuffleOptionsDialog extends StatefulWidget {
 }
 
 class _ShuffleOptionsDialogState extends State<ShuffleOptionsDialog> {
-  late int _currentSelectedIndex;
+  int _currentSelectedIndex = 0;
+
+  List<int> indexSelected = [
+    0,1,2
+  ];
 
   @override
   void initState() {
     super.initState();
-    _currentSelectedIndex =
-        widget.selectedIndex; // Initialize with the passed selected index
+    _loadSelectedIndex();
+  }
+
+  _loadSelectedIndex() async {
+    final prefs = await SharedPreferences.getInstance();
+    int selectedIndex = prefs.getInt('selectedIndex') ?? 0;
+    setState(() {
+      _currentSelectedIndex = selectedIndex;
+    });
+  }
+
+  _saveSelectedIndex(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('selectedIndex', index);
   }
 
   @override
   Widget build(BuildContext context) {
     var screenWidth = MediaQuery.of(context).size.width;
 
-    return AlertDialog(
-      backgroundColor: CustomColors.clrwhite,
-      shadowColor: CustomColors.clrblack,
-      alignment: Alignment.center,
-      title: Text(
-        'How to listen to Bhajan or Arti?',
-        style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: CustomColors.clrblack,
-            fontSize: screenWidth * 0.04),
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
+    return BottomSheet(onClosing: () {
+
+    }, builder: (context) {
+      return Container(
+        height: 200,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20)),
+          color: Colors.white,
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05,vertical: screenWidth * 0.02),
+          child: Column(
             children: [
-              Icon(Icons.fiber_smart_record_outlined,
-                  color: CustomColors.clrorange, size: screenWidth * 0.05),
-              SizedBox(width: screenWidth * 0.05),
-              Text('Play Next',
-                  style: TextStyle(
-                      fontSize: screenWidth * 0.04,
-                      color: CustomColors.clrblack)),
-              Spacer(),
-              Radio<int>(
-                value: 0,
-                groupValue: _currentSelectedIndex,
-                activeColor: CustomColors.clrorange,
-                onChanged: (int? value) {
-                  setState(() {
-                    _currentSelectedIndex = value!;
-                  });
-                  widget.audioManager.setShuffleMode(ShuffleMode.playNext);
-                  Navigator.pop(context);
-                },
+
+              Text(
+                'How to listen to Bhajan or Arti?',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: CustomColors.clrblack,
+                    fontSize: screenWidth * 0.04),
+              ),
+
+              Divider(),
+
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.fiber_smart_record_outlined,
+                          color: CustomColors.clrorange, size: screenWidth * 0.05),
+                      SizedBox(width: screenWidth * 0.05),
+                      Text('Play Next',
+                          style: TextStyle(
+                              fontSize: screenWidth * 0.04,
+                              color: CustomColors.clrblack)),
+                      Spacer(),
+                      Radio<int>(
+                        value: indexSelected[0],
+                        groupValue: _currentSelectedIndex,
+                        activeColor: CustomColors.clrorange,
+                        onChanged: (int? value) {
+                          setState(() {
+                            _currentSelectedIndex = value!;
+                          });
+                          _saveSelectedIndex(value!);
+                          widget.audioManager.setShuffleMode(ShuffleMode.playNext);
+                         // Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Icon(Icons.looks_one_outlined,
+                          color: CustomColors.clrorange, size: screenWidth * 0.05),
+                      SizedBox(width: screenWidth * 0.05),
+                      Text('Play Once and Close',
+                          style: TextStyle(
+                              fontSize: screenWidth * 0.04,
+                              color: CustomColors.clrblack)),
+                      Spacer(),
+                      Radio<int>(
+                        value: indexSelected[1],
+                        groupValue: _currentSelectedIndex,
+                        activeColor: CustomColors.clrorange,
+                        onChanged: (int? value) {
+                          setState(() {
+                            _currentSelectedIndex = value!;
+                          });
+                          _saveSelectedIndex(value!);
+                          widget.audioManager
+                              .setShuffleMode(ShuffleMode.playOnceAndClose);
+                         // Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                  Row(
+                      children: [
+                        Icon(Icons.loop,
+                            color: CustomColors.clrorange, size: screenWidth * 0.05),
+                        SizedBox(width: screenWidth * 0.05),
+                        Text('Play on Loop',
+                            style: TextStyle(
+                                fontSize: screenWidth * 0.04,
+                                color: CustomColors.clrblack)),
+                        Spacer(),
+                        Radio<int>(
+                          value: indexSelected[2],
+                          groupValue: _currentSelectedIndex,
+                          activeColor: CustomColors.clrorange,
+                          onChanged: (int? value) {
+                            setState(() {
+                              _currentSelectedIndex = value!;
+                            });
+                            _saveSelectedIndex(value!);
+                            widget.audioManager.setShuffleMode(ShuffleMode.playOnLoop);
+                          //  Navigator.pop(context);
+                          },
+                        ),
+                      ]),
+                ],
               ),
             ],
           ),
-          Row(
-            children: [
-              Icon(Icons.looks_one_outlined,
-                  color: CustomColors.clrorange, size: screenWidth * 0.05),
-              SizedBox(width: screenWidth * 0.05),
-              Text('Play Once and Close',
-                  style: TextStyle(
-                      fontSize: screenWidth * 0.04,
-                      color: CustomColors.clrblack)),
-              Spacer(),
-              Radio<int>(
-                value: 1,
-                groupValue: _currentSelectedIndex,
-                activeColor: CustomColors.clrorange,
-                onChanged: (int? value) {
-                  setState(() {
-                    _currentSelectedIndex = value!;
-                  });
-                  widget.audioManager
-                      .setShuffleMode(ShuffleMode.playOnceAndClose);
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Icon(Icons.loop,
-                  color: CustomColors.clrorange, size: screenWidth * 0.05),
-              SizedBox(width: screenWidth * 0.05),
-              Text('Play on Loop',
-                  style: TextStyle(
-                      fontSize: screenWidth * 0.04,
-                      color: CustomColors.clrblack)),
-              Spacer(),
-              Radio<int>(
-                value: 2,
-                groupValue: _currentSelectedIndex,
-                activeColor: CustomColors.clrorange,
-                onChanged: (int? value) {
-                  setState(() {
-                    _currentSelectedIndex = value!;
-                  });
-                  widget.audioManager.setShuffleMode(ShuffleMode.playOnLoop);
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+        ),
+      );
+    },);
   }
 }
-
-//
-// class ShuffleOptionsDialog extends StatefulWidget {
-//   final AudioPlayerManager audioManager;
-//
-//   ShuffleOptionsDialog({required this.audioManager});
-//
-//   @override
-//   _ShuffleOptionsDialogState createState() => _ShuffleOptionsDialogState();
-// }
-//
-// class _ShuffleOptionsDialogState extends State<ShuffleOptionsDialog> {
-//   int _selectedIndex = -1;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     var screenWidth = MediaQuery.of(context).size.width;
-//
-//     return AlertDialog(
-//       backgroundColor: CustomColors.clrwhite,
-//       title: Text(
-//         'How to listen to Bhajan or Arti?',
-//         style: TextStyle(
-//             fontWeight: FontWeight.bold,
-//             color: CustomColors.clrblack,
-//             fontSize: screenWidth * 0.04),
-//       ),
-//       content: Column(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           Row(
-//             children: [
-//               Icon(Icons.fiber_smart_record_outlined,
-//                   color: CustomColors.clrorange, size: screenWidth * 0.05),
-//               SizedBox(width: screenWidth * 0.05),
-//               Text('Play Next',
-//                   style: TextStyle(
-//                       fontSize: screenWidth * 0.04, color: CustomColors.clrblack)),
-//               Spacer(),
-//               Radio<int>(
-//                 value: 0,
-//                 groupValue: _selectedIndex,
-//                 activeColor: CustomColors.clrorange,
-//                 onChanged: (int? value) {
-//                   setState(() {
-//                     _selectedIndex = value!;
-//                   });
-//                   widget.audioManager.setShuffleMode(ShuffleMode.playNext);
-//                 },
-//               ),
-//             ],
-//           ),
-//           SizedBox(height: screenWidth * 0.05),
-//           Row(
-//             children: [
-//               Icon(Icons.looks_one_outlined,
-//                   color: CustomColors.clrorange, size: screenWidth * 0.05),
-//               SizedBox(width: screenWidth * 0.05),
-//               Text('Play Once and Close',
-//                   style: TextStyle(
-//                       fontSize: screenWidth * 0.04, color: CustomColors.clrblack)),
-//               Spacer(),
-//               Radio<int>(
-//                 value: 1,
-//                 groupValue: _selectedIndex,
-//                 activeColor: CustomColors.clrorange,
-//                 onChanged: (int? value) {
-//                   setState(() {
-//                     _selectedIndex = value!;
-//                   });
-//                   widget.audioManager.setShuffleMode(ShuffleMode.playOnceAndClose);
-//                 },
-//               ),
-//             ],
-//           ),
-//           SizedBox(height: screenWidth * 0.05),
-//           Row(
-//             children: [
-//               Icon(Icons.loop,
-//                   color: CustomColors.clrorange, size: screenWidth * 0.05),
-//               SizedBox(width: screenWidth * 0.05),
-//               Text('Play on Loop',
-//                   style: TextStyle(
-//                       fontSize: screenWidth * 0.04, color: CustomColors.clrblack)),
-//               Spacer(),
-//               Radio<int>(
-//                 value: 2,
-//                 groupValue: _selectedIndex,
-//                 activeColor: CustomColors.clrorange,
-//                 onChanged: (int? value) {
-//                   setState(() {
-//                     _selectedIndex = value!;
-//                   });
-//                   widget.audioManager.setShuffleMode(ShuffleMode.playOnLoop);
-//                 },
-//               ),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

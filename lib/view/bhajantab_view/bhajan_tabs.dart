@@ -57,6 +57,9 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
 
   List<Datum> subcategorymodel = [];
 
+  // List<Datum> filteredCategories =
+  // subcategorymodel.where((cat) => cat.status != 0).toList();
+
   Future<void> getSubCategoryData() async {
     setState(() {
       _isLoading = true;
@@ -79,11 +82,18 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
             _isLoading = false;
 
             _initializeControllers();
+
+            print(" My Syb tabs length is ${subCategoryModel.data.length}");
           });
         } else {
           print("Error fetching subcategory data: ${subCategoryModel.status}");
         }
       } else {
+        setState(() {
+          _initializeControllers();
+
+          _controllersInitialized = false;
+        });
         print("Error: 'status' or 'data' key is missing or null in response.");
       }
     } catch (error) {
@@ -99,6 +109,7 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
   }
 
   void _initializeControllers() {
+
     if (!_controllersInitialized) {
       _tabController = TabController(
         length: subcategorymodel.length + 1,
@@ -125,11 +136,20 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
         _controllersInitialized = true;
       });
     }
+    else {
+      // Display "Not data available" message or handle the error accordingly
+      setState(() {
+        _controllersInitialized = false;
+
+        print("Its Working there");
+
+        // Update your UI to show the error message
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    var screenHeight = MediaQuery.of(context).size.height;
     var screenWidth = MediaQuery.of(context).size.width;
 
     List<Datum> filteredCategories =
@@ -294,6 +314,8 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
                           ),
                         ),
                       ),
+
+
                       SliverPersistentHeader(
                         pinned: true,
                         delegate: _SliverAppBarDelegate(
@@ -319,7 +341,7 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
                                 indicator: BoxDecoration(
                                     color: Colors.orange,
                                     borderRadius: BorderRadius.circular(5)),
-                                tabs: tabs,
+                                tabs:  _controllersInitialized ? tabs : [Container()]
                               ),
                             )),
                       ),
@@ -355,7 +377,7 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
                             ],
                           ),
                         )
-                      : const SizedBox.shrink(),
+                       : const Center(child: Text("No Data Available"))
                 );
               },
             ),
