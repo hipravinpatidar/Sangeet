@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -13,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../ui_helper/custom_colors.dart';
 
 class MusicPlayer extends HookWidget {
-  const MusicPlayer({
+  const MusicPlayer(this.godNameHindi, {
     required this.musicData,
     required this.categoryId,
     required this.subCategoryId,
@@ -28,6 +29,7 @@ class MusicPlayer extends HookWidget {
   //final List allCategoryModel;
   final List<Sangeet> allcategorymodel;
   final String godName;
+  final String godNameHindi;
   final List musicData;
   final int categoryId;
   final int subCategoryId;
@@ -178,36 +180,40 @@ class MusicPlayer extends HookWidget {
                                   height: screenWidth * 0.05,
                                 ),
                                 Center(
-                                  child: Row(
-                                    crossAxisAlignment:
+                                  child: Consumer<LanguageManager>(
+                                    builder: (BuildContext context, languageManager, Widget? child) {
+                                      return Row(
+                                        crossAxisAlignment:
                                         CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.all_inclusive_outlined,
-                                        size: screenWidth * 0.05,
-                                        color: CustomColors.clrorange,
-                                      ),
-                                      SizedBox(
-                                        width: screenWidth * 0.02,
-                                      ),
-                                      Text(
-                                        "Divine Music of $godName",
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: screenWidth * 0.02,
-                                      ),
-                                      Icon(
-                                        Icons.all_inclusive_outlined,
-                                        size: screenWidth * 0.05,
-                                        color: CustomColors.clrorange,
-                                      ),
-                                    ],
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.all_inclusive_outlined,
+                                            size: screenWidth * 0.05,
+                                            color: CustomColors.clrorange,
+                                          ),
+                                          SizedBox(
+                                            width: screenWidth * 0.02,
+                                          ),
+                                          Text(
+                                            languageManager.nameLanguage == 'English' ? "Divine Music of $godName" : "संगीत संग्रह $godNameHindi",
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: screenWidth * 0.02,
+                                          ),
+                                          Icon(
+                                            Icons.all_inclusive_outlined,
+                                            size: screenWidth * 0.05,
+                                            color: CustomColors.clrorange,
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   ),
                                 ),
                                 const SizedBox(
@@ -245,6 +251,7 @@ class MusicPlayer extends HookWidget {
                         subCategoryId,
                         subCategoryModel,
                         godName,
+                        godNameHindi,
                         categoryId: categoryId,
                         isToggle: false,
                         isFixedTab: true,
@@ -255,6 +262,7 @@ class MusicPlayer extends HookWidget {
                             cat.id,
                             filteredCategories,
                             godName,
+                            godNameHindi,
                             categoryId: categoryId,
                             isToggle: false,
                             isFixedTab: false,
@@ -300,121 +308,287 @@ class _CollapsedAppBarContentState extends State<CollapsedAppBarContent> {
       builder: (BuildContext context, audioManager, Widget? child) {
         return Padding(
           padding: EdgeInsets.symmetric(
-              horizontal: screenWidth * 0.02, vertical: screenWidth * 0.08),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(
-              height: screenHeight * 0.05,
-              width: screenWidth * 0.1,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                image: DecorationImage(
-                  image: NetworkImage(
-                      audioManager.currentMusic?.image ?? 'default_image_url'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            SizedBox(
-              width: screenWidth * 0.05,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: screenWidth * 0.5,
-                  child: Text(
-                    audioManager.currentMusic?.title ?? 'No Title',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: screenWidth * 0.04,
-                        overflow: TextOverflow.ellipsis,
-                        color: CustomColors.clrwhite),
-                    maxLines: 1,
+              horizontal: screenWidth * 0.01, vertical: screenWidth * 0.08),
+          child: Column(
+            children: [
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Container(
+                  height: screenHeight * 0.05,
+                  width: screenWidth * 0.1,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    image: DecorationImage(
+                      image: NetworkImage(
+                          audioManager.currentMusic?.image ?? 'default_image_url'),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 SizedBox(
+                  width: screenWidth * 0.05,
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: screenWidth * 0.40,
+                      child: Text(
+                        audioManager.currentMusic?.title ?? 'No Title',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: screenWidth * 0.04,
+                            overflow: TextOverflow.ellipsis,
+                            color: CustomColors.clrwhite),
+                        maxLines: 1,
+                      ),
+                    ),
+                    SizedBox(
 
-                  width: screenWidth * 0.4,
-                  child: Text(
-                    audioManager.currentMusic?.singerName ?? 'No Singer',
-                    style: TextStyle(
+                      width: screenWidth * 0.3,
+                      child: Text(
+                        audioManager.currentMusic?.singerName ?? 'No Singer',
+                        style: TextStyle(
+                            color: CustomColors.clrwhite,
+                            fontSize: screenWidth * 0.03,
+                            fontWeight: FontWeight.bold,
+                            overflow: TextOverflow.ellipsis),
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ),
+
+               // SizedBox(width: screenWidth * 0.01,),
+                Row(
+                  children: [
+                    // Skip Previous Button
+                    GestureDetector(
+                      onTap: () {
+                        if (audioManager != null) {
+                          if (widget.selectedIndex == 0) {
+                            // Fixed tab logic
+                            Sangeet? currentMusic = audioManager.currentMusic;
+
+                            if (currentMusic != null) {
+                              int currentIndex =
+                              widget.allcategorymodel.indexOf(currentMusic);
+
+                              if (currentIndex != -1) {
+                                if (currentIndex > 0) {
+                                  // Play the previous song
+                                  audioManager.playMusic(
+                                      widget.allcategorymodel[currentIndex - 1]);
+                                } else {
+                                  // Loop back to the last song
+                                  audioManager.playMusic(widget.allcategorymodel.last);
+                                }
+                              } else {
+                                // Handle case where currentMusic is not in the list
+                                if (widget.allcategorymodel.isNotEmpty) {
+                                  audioManager.playMusic(widget.allcategorymodel.last);
+                                } else {
+                                  print("No music available in the list");
+                                }
+                              }
+                            } else {
+                              // Handle case where currentMusic is null
+                              if (widget.allcategorymodel.isNotEmpty) {
+                                audioManager.playMusic(widget.allcategorymodel.last);
+                              } else {
+                                print("No music available in the list");
+                              }
+                            }
+                          } else {
+                            // Dynamic tab logic
+                            audioManager
+                                .skipPrevious(); // Skip to previous song in the dynamic list
+                          }
+                        }
+                      },
+                      child: Icon(
+                        Icons.skip_previous,
                         color: CustomColors.clrwhite,
-                        fontSize: screenWidth * 0.03,
-                        overflow: TextOverflow.ellipsis),
-                    maxLines: 1,
+                        size: screenWidth * 0.08,
+                      ),
+                    ),
+
+                    SizedBox(
+                      width: screenWidth * 0.05,
+                    ),
+                    // Toggle Play/Pause Button
+                    GestureDetector(
+                      onTap: () => audioManager.togglePlayPause(),
+                      child: Icon(
+                        audioManager.isPlaying
+                            ? Icons.pause_circle
+                            : Icons.play_circle,
+                        size: screenWidth * 0.08,
+                        color: CustomColors.clrwhite,
+                      ),
+                    ),
+
+                    SizedBox(
+                      width: screenWidth * 0.05,
+                    ),
+                    // Skip Next Button
+                    GestureDetector(
+                      onTap: () {
+                        if (audioManager != null) {
+                          if (widget.selectedIndex == 0) {
+                            // Fixed tab logic
+                            Sangeet? currentMusic = audioManager.currentMusic;
+
+                            if (currentMusic != null) {
+                              int currentIndex =
+                              widget.allcategorymodel.indexOf(currentMusic);
+
+                              if (currentIndex != -1) {
+                                if (currentIndex < widget.allcategorymodel.length - 1) {
+                                  // Play the next song
+                                  audioManager.playMusic(
+                                      widget.allcategorymodel[currentIndex + 1]);
+                                } else {
+                                  // Loop back to the first song
+                                  audioManager.playMusic(widget.allcategorymodel.first);
+                                }
+                              } else {
+                                // Handle case where currentMusic is not in the list
+                                if (widget.allcategorymodel.isNotEmpty) {
+                                  audioManager.playMusic(widget.allcategorymodel.first);
+                                } else {
+                                  print("No music available in the list");
+                                }
+                              }
+                            } else {
+                              // Handle case where currentMusic is null
+                              if (widget.allcategorymodel.isNotEmpty) {
+                                audioManager.playMusic(widget.allcategorymodel.first);
+                              } else {
+                                print("No music available in the list");
+                              }
+                            }
+                          } else {
+                            // Dynamic tab logic
+                            audioManager
+                                .skipNext(); // Skip to next song in the dynamic list
+                          }
+                        }
+                      },
+                      child: Icon(
+                        Icons.skip_next,
+                        color: CustomColors.clrwhite,
+                        size: screenWidth * 0.08,
+                      ),
+                    ),
+                  ],
+                )
+
+
+
+                // const Spacer(),
+                // GestureDetector(
+                //   onTap: () => audioManager.togglePlayPause(),
+                //   child: Icon(
+                //     audioManager.isPlaying ? Icons.pause : Icons.play_arrow,
+                //     size: screenWidth * 0.07,
+                //     color: CustomColors.clrwhite,
+                //   ),
+                // ),
+                // SizedBox(
+                //   width: screenWidth * 0.05,
+                // ),
+                // GestureDetector(
+                //   onTap: () {
+                //     if (audioManager != null) {
+                //       if (widget.selectedIndex == 0) {
+                //         // Fixed tab logic
+                //         Sangeet? currentMusic = audioManager.currentMusic;
+                //
+                //         if (currentMusic != null) {
+                //           int currentIndex =
+                //               widget.allcategorymodel.indexOf(currentMusic);
+                //           print("Current music index: $currentIndex");
+                //
+                //           if (currentIndex != -1) {
+                //             if (currentIndex < widget.allcategorymodel.length - 1) {
+                //               // Play the next song
+                //               audioManager.playMusic(
+                //                   widget.allcategorymodel[currentIndex + 1]);
+                //               print("Play the next song");
+                //             } else {
+                //               // Loop back to the first song
+                //               audioManager.playMusic(widget.allcategorymodel.first);
+                //               print("Loop back to the first song");
+                //             }
+                //           } else {
+                //             // Handle case where currentMusic is not in the list
+                //             if (widget.allcategorymodel.isNotEmpty) {
+                //               print(
+                //                   "Handle case where currentMusic is not in the list");
+                //               audioManager.playMusic(widget.allcategorymodel.first);
+                //             } else {
+                //               print("No music available in the list");
+                //             }
+                //           }
+                //         } else {
+                //           // Handle case where currentMusic is null
+                //           if (widget.allcategorymodel.isNotEmpty) {
+                //             audioManager.playMusic(widget.allcategorymodel.first);
+                //             print("Handle case where currentMusic is null");
+                //           } else {
+                //             print("No music available in the list");
+                //           }
+                //         }
+                //       } else {
+                //         // Dynamic tab logic
+                //         audioManager
+                //             .skipNext(); // Skip to next song in the dynamic list
+                //         print("Skip to next song in the dynamic list");
+                //       }
+                //     }
+                //   },
+                //   child: Icon(
+                //     Icons.skip_next,
+                //     color: CustomColors.clrwhite,
+                //     size: screenWidth * 0.07,
+                //   ),
+                // ),
+
+
+
+              ]),
+
+              Padding(
+                padding:EdgeInsets.symmetric(vertical: screenWidth * 0.01),
+                child: Container(
+                  height: 5,
+                  width: double.infinity,
+                  child: SliderTheme(
+                    data: SliderThemeData(
+                      activeTrackColor: CustomColors.clrwhite,
+                      trackHeight: 1.7,
+                      trackShape: const RectangularSliderTrackShape(),
+                      inactiveTrackColor: CustomColors.clrwhite.withOpacity(0.5),
+                      thumbColor: CustomColors.clrwhite,
+                      thumbShape: SliderComponentShape.noThumb,
+                      overlayColor: CustomColors.clrwhite.withOpacity(0.7),
+                      valueIndicatorColor: CustomColors.clrwhite,
+                    ),
+                    child: Slider(
+                      min: 0.0,
+                      max: audioManager.duration.inSeconds.toDouble(),
+                      value: audioManager.currentPosition.inSeconds.toDouble(),
+                      onChanged: (double value) {
+                        audioManager.seekTo(Duration(seconds: value.toInt()));
+                      },
+                    ),
                   ),
                 ),
-              ],
-            ),
-            const Spacer(),
-            GestureDetector(
-              onTap: () => audioManager.togglePlayPause(),
-              child: Icon(
-                audioManager.isPlaying ? Icons.pause : Icons.play_arrow,
-                size: screenWidth * 0.07,
-                color: CustomColors.clrwhite,
               ),
-            ),
-            SizedBox(
-              width: screenWidth * 0.05,
-            ),
-            GestureDetector(
-              onTap: () {
-                if (audioManager != null) {
-                  if (widget.selectedIndex == 0) {
-                    // Fixed tab logic
-                    Sangeet? currentMusic = audioManager.currentMusic;
 
-                    if (currentMusic != null) {
-                      int currentIndex =
-                          widget.allcategorymodel.indexOf(currentMusic);
-                      print("Current music index: $currentIndex");
-
-                      if (currentIndex != -1) {
-                        if (currentIndex < widget.allcategorymodel.length - 1) {
-                          // Play the next song
-                          audioManager.playMusic(
-                              widget.allcategorymodel[currentIndex + 1]);
-                          print("Play the next song");
-                        } else {
-                          // Loop back to the first song
-                          audioManager.playMusic(widget.allcategorymodel.first);
-                          print("Loop back to the first song");
-                        }
-                      } else {
-                        // Handle case where currentMusic is not in the list
-                        if (widget.allcategorymodel.isNotEmpty) {
-                          print(
-                              "Handle case where currentMusic is not in the list");
-                          audioManager.playMusic(widget.allcategorymodel.first);
-                        } else {
-                          print("No music available in the list");
-                        }
-                      }
-                    } else {
-                      // Handle case where currentMusic is null
-                      if (widget.allcategorymodel.isNotEmpty) {
-                        audioManager.playMusic(widget.allcategorymodel.first);
-                        print("Handle case where currentMusic is null");
-                      } else {
-                        print("No music available in the list");
-                      }
-                    }
-                  } else {
-                    // Dynamic tab logic
-                    audioManager
-                        .skipNext(); // Skip to next song in the dynamic list
-                    print("Skip to next song in the dynamic list");
-                  }
-                }
-              },
-              child: Icon(
-                Icons.skip_next,
-                color: CustomColors.clrwhite,
-                size: screenWidth * 0.07,
-              ),
-            ),
-          ]),
+            ],
+          ),
         );
       },
     );
@@ -535,38 +709,69 @@ class _ExpandedAppBarContentState extends State<ExpandedAppBarContent> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: Icon(Icons.arrow_back_ios_rounded,
-                            size: screenWidth * 0.07,
-                            color: CustomColors.clrwhite),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.9)
+                        ),
+                        child: Padding(
+                            padding: EdgeInsets.all(screenWidth * 0.01),
+                            child: Icon(Icons.arrow_back_ios_rounded,
+                                 // size: screenWidth * 0.07,
+                                  color:CustomColors.clrblack),
+                          ),
+                      ),
                     ),
 
-                    SizedBox(width: screenWidth * 0.60,),
+                    SizedBox(width: screenWidth * 0.61,),
+
                     GestureDetector(
-                        onTap: () {
-                          shareMusic.shareSong(audiomanager.currentMusic!);
-                        },
-                        child: Icon(
-                          Icons.share_outlined,
-                          color: CustomColors.clrwhite,
-                          size: screenWidth * 0.06,
-                        )),
+                      onTap: () {
+                        shareMusic.shareSong(audiomanager.currentMusic!);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withOpacity(0.9)
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(screenWidth * 0.01),
+                          child: Icon(Icons.share,
+                             // size: screenWidth * 0.07,
+                              color:CustomColors.clrblack),
+                        ),
+                      ),
+                    ),
+
                     SizedBox(height: screenWidth * 0.05,width: screenWidth * 0.06,),
                     GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Lyricsbhajan(
-                                    audiomanager.currentMusic!.lyrics,
-                                    audiomanager.currentMusic!.title),
-                              ));
-                        },
-                        child: const Icon(
-                          Icons.note_alt,
-                          color: CustomColors.clrwhite,
-                        )),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Lyricsbhajan(
+                                  audiomanager.currentMusic!.lyrics,
+                                  audiomanager.currentMusic!.title),
+                            ));
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withOpacity(0.9)
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(screenWidth * 0.01),
+                          child: Icon(Icons.note_alt,
+                              //size: screenWidth * 0.07,
+                              color:CustomColors.clrblack),
+                        ),
+                      ),
+                    ),
+
                   ],
                 ),
               ),
@@ -785,7 +990,7 @@ class _ShuffleOptionsDialogState extends State<ShuffleOptionsDialog> {
 
     }, builder: (context) {
       return Container(
-        height: 200,
+        height: 210,
         width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20)),
@@ -801,7 +1006,7 @@ class _ShuffleOptionsDialogState extends State<ShuffleOptionsDialog> {
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: CustomColors.clrblack,
-                    fontSize: screenWidth * 0.04),
+                    fontSize: screenWidth * 0.05),
               ),
 
               Divider(),
@@ -817,6 +1022,7 @@ class _ShuffleOptionsDialogState extends State<ShuffleOptionsDialog> {
                       Text('Play Next',
                           style: TextStyle(
                               fontSize: screenWidth * 0.04,
+                              fontWeight: FontWeight.bold,
                               color: CustomColors.clrblack)),
                       Spacer(),
                       Radio<int>(
@@ -842,6 +1048,7 @@ class _ShuffleOptionsDialogState extends State<ShuffleOptionsDialog> {
                       Text('Play Once and Close',
                           style: TextStyle(
                               fontSize: screenWidth * 0.04,
+                              fontWeight: FontWeight.bold,
                               color: CustomColors.clrblack)),
                       Spacer(),
                       Radio<int>(
@@ -868,6 +1075,7 @@ class _ShuffleOptionsDialogState extends State<ShuffleOptionsDialog> {
                         Text('Play on Loop',
                             style: TextStyle(
                                 fontSize: screenWidth * 0.04,
+                                fontWeight: FontWeight.bold,
                                 color: CustomColors.clrblack)),
                         Spacer(),
                         Radio<int>(

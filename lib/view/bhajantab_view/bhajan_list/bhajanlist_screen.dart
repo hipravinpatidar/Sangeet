@@ -11,7 +11,7 @@ import '../../../controller/share_music.dart';
 import '../../../ui_helper/custom_colors.dart';
 
 class BhajanList extends StatefulWidget {
-  BhajanList(this.subCategoryId, this.subCategoryModel, this.godName,
+  BhajanList(this.subCategoryId, this.subCategoryModel, this.godName,this.godNameHindi,
       {
       required this.categoryId,
       required this.isToggle,
@@ -22,6 +22,7 @@ class BhajanList extends StatefulWidget {
   int subCategoryId;
   final List subCategoryModel;
   final String godName;
+  final String godNameHindi;
   final int categoryId;
   final bool isToggle;
   final bool isAllTab;
@@ -357,7 +358,7 @@ class _BhajanListState extends State<BhajanList>
                   alignment: Alignment.bottomCenter,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 100),
-                    height: screenWidth * 0.2,
+                    height: screenWidth * 0.19,
                     color: Colors.brown,
                     child: GestureDetector(
                       onTap: () {
@@ -367,7 +368,7 @@ class _BhajanListState extends State<BhajanList>
                             pageBuilder: (context, animation,
                                     secondaryAnimation) =>
 
-                            MusicPlayer(musicData: musiclistdata, categoryId: widget.categoryId, subCategoryId: widget.subCategoryId, allcategorymodel: allcategorymodel, MyCurrentIndex: audioManager.currentIndex, subCategoryModel: widget.subCategoryModel, godName: widget.godName),
+                            MusicPlayer(widget.godNameHindi,musicData: musiclistdata, categoryId: widget.categoryId, subCategoryId: widget.subCategoryId, allcategorymodel: allcategorymodel, MyCurrentIndex: audioManager.currentIndex, subCategoryModel: widget.subCategoryModel, godName: widget.godName),
                             transitionsBuilder: (context, animation,
                                 secondaryAnimation, child) {
                               const begin = Offset(0.0, 1.0);
@@ -388,112 +389,232 @@ class _BhajanListState extends State<BhajanList>
                         );
                       },
                       child: FractionallySizedBox(
-                        heightFactor: 1.0,
+                        heightFactor: 1.2,
                         widthFactor: 1.0,
                         child: Padding(
                           padding: EdgeInsets.symmetric(
                             vertical: screenWidth * 0.02,
-                            horizontal: screenWidth * 0.04,
+                            horizontal: screenWidth * 0.02,
                           ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                          child: Column(
                             children: [
-                              Container(
-                                width: screenWidth * 0.1,
-                                height: screenWidth * 0.1,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                      audioManager.currentMusic!.image
-                                          .toString(),
+                              
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: screenWidth * 0.09,
+                                    height: screenWidth * 0.09,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: NetworkImage(
+                                          audioManager.currentMusic!.image
+                                              .toString(),
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                    fit: BoxFit.cover,
                                   ),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                      top: screenWidth * 0.02,
-                                      left: screenWidth * 0.02),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                          top: screenWidth * 0.02,
+                                          left: screenWidth * 0.02),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            width: screenWidth * 0.5,
+                                            child: Text(
+                                              audioManager.currentMusic?.title
+                                                      .toString() ??
+                                                  '',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              maxLines: 1,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: screenWidth * 0.5,
+                                            child: Text(
+                                              audioManager.currentMusic?.singerName
+                                                      .toString() ?? '',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              maxLines: 1,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+
+
+                                  // IconButton(
+                                  //   onPressed: () {
+                                  //     audioManager.togglePlayPause();
+                                  //   },
+                                  //   icon: Icon(
+                                  //     audioManager.isPlaying
+                                  //         ? Icons.pause_circle_filled
+                                  //         : Icons.play_circle_filled,
+                                  //     color: Colors.white,
+                                  //     size: screenWidth * 0.1,
+                                  //   ),
+                                  // ),
+
+
+
+
+                                  Row(
                                     children: [
-                                      SizedBox(
-                                        width: screenWidth * 0.5,
-                                        child: Text(
-                                          audioManager.currentMusic?.title
-                                                  .toString() ??
-                                              '',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          maxLines: 1,
+                                      // Skip Previous Button
+                                      IconButton(
+                                        onPressed: () {
+                                          if (audioManager.isPlaying) {
+                                            if (widget.isFixedTab && allcategorymodel != null) {
+                                              int currentIndex = allcategorymodel.indexOf(audioManager.currentMusic!);
+                                              if (currentIndex > 0) {
+                                                audioManager.playMusic(allcategorymodel[currentIndex - 1]);
+                                              } else {
+                                                audioManager.playMusic(allcategorymodel[allcategorymodel.length - 1]); // Loop back to the last song
+                                              }
+                                            } else {
+                                              audioManager.skipPrevious();
+                                            }
+                                          }
+                                        },
+                                        icon: Icon(
+                                          Icons.skip_previous,
+                                          color: Colors.white,
+                                          size: screenWidth * 0.08,
                                         ),
                                       ),
-                                      SizedBox(
-                                        width: screenWidth * 0.5,
-                                        child: Text(
-                                          audioManager.currentMusic?.singerName
-                                                  .toString() ??
-                                              '',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          maxLines: 1,
+
+                                      // Play and Pause
+                                      GestureDetector(
+                                        onTap: () => audioManager.togglePlayPause(),
+                                        child: Icon(
+                                          audioManager.isPlaying
+                                              ? Icons.pause_circle
+                                              : Icons.play_circle,
+                                          size: screenWidth * 0.08,
+                                          color: CustomColors.clrwhite,
                                         ),
                                       ),
+
+                                      // Skip Next Button
+                                      IconButton(
+                                        onPressed: () {
+                                          if (audioManager.isPlaying) {
+                                            if (widget.isFixedTab && allcategorymodel != null) {
+                                              int currentIndex = allcategorymodel.indexOf(audioManager.currentMusic!);
+                                              if (currentIndex < allcategorymodel.length - 1) {
+                                                audioManager.playMusic(allcategorymodel[currentIndex + 1]);
+                                              } else {
+                                                audioManager.playMusic(allcategorymodel[0]); // Loop back to the first song
+                                              }
+                                            } else {
+                                              audioManager.skipNext();
+                                            }
+                                          }
+                                        },
+                                        icon: Icon(
+                                          Icons.skip_next,
+                                          color: Colors.white,
+                                          size: screenWidth * 0.08,
+                                        ),
+                                      ),
+
+                                      // Remove Music Bar
+                                      IconButton(
+                                        onPressed: () {
+                                          audioManager.stopMusic();
+                                          _toggleMusicBarVisibility();
+                                        },
+                                        icon: Icon(
+                                          Icons.cancel,
+                                          color: Colors.white,
+                                          size: screenWidth * 0.08,
+                                        ),
+                                      ),
+                                      
+                                      Icon(Icons.arrow_upward_rounded,color: Colors.white,weight: 4,size: screenWidth * 0.09,)
+                                      
                                     ],
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  audioManager.togglePlayPause();
-                                },
-                                icon: Icon(
-                                  audioManager.isPlaying
-                                      ? Icons.pause_circle_filled
-                                      : Icons.play_circle_filled,
-                                  color: Colors.white,
-                                  size: screenWidth * 0.1,
-                                ),
+                                  )
+
+
+
+
+                                  // IconButton(
+                                  //   onPressed: () {
+                                  //     if (audioManager.isPlaying) {
+                                  //       if (widget.isFixedTab &&
+                                  //           allcategorymodel != null) {
+                                  //         int currentIndex = allcategorymodel
+                                  //             .indexOf(audioManager.currentMusic!);
+                                  //         if (currentIndex <
+                                  //             allcategorymodel.length - 1) {
+                                  //           audioManager.playMusic(
+                                  //               allcategorymodel[currentIndex + 1]);
+                                  //         } else {
+                                  //           audioManager.playMusic(allcategorymodel[
+                                  //               0]); // Loop back to the first song
+                                  //         }
+                                  //       } else {
+                                  //         audioManager.skipNext();
+                                  //       }
+                                  //     } else {
+                                  //       _toggleMusicBarVisibility();
+                                  //     }
+                                  //   },
+                                  //   icon: Icon(
+                                  //     audioManager.isPlaying
+                                  //         ? Icons.skip_next
+                                  //         : Icons.highlight_remove_outlined,
+                                  //     color: Colors.white,
+                                  //     size: screenWidth * 0.1,
+                                  //   ),
+                                  // )
+                                ],
                               ),
 
-                              IconButton(
-                                onPressed: () {
-                                  if (audioManager.isPlaying) {
-                                    if (widget.isFixedTab &&
-                                        allcategorymodel != null) {
-                                      int currentIndex = allcategorymodel
-                                          .indexOf(audioManager.currentMusic!);
-                                      if (currentIndex <
-                                          allcategorymodel.length - 1) {
-                                        audioManager.playMusic(
-                                            allcategorymodel[currentIndex + 1]);
-                                      } else {
-                                        audioManager.playMusic(allcategorymodel[
-                                            0]); // Loop back to the first song
-                                      }
-                                    } else {
-                                      audioManager.skipNext();
-                                    }
-                                  } else {
-                                    _toggleMusicBarVisibility();
-                                  }
-                                },
-                                icon: Icon(
-                                  audioManager.isPlaying
-                                      ? Icons.skip_next
-                                      : Icons.highlight_remove_outlined,
-                                  color: Colors.white,
-                                  size: screenWidth * 0.1,
+                              Padding(
+                                padding:EdgeInsets.symmetric(vertical: screenWidth * 0.01),
+                                child: Container(
+                                  height: 5,
+                                  width: double.infinity,
+                                  child: SliderTheme(
+                                    data: SliderThemeData(
+                                      activeTrackColor: CustomColors.clrwhite,
+                                      trackHeight: 1.7,
+                                      trackShape: const RectangularSliderTrackShape(),
+                                      inactiveTrackColor: CustomColors.clrwhite.withOpacity(0.5),
+                                      thumbColor: CustomColors.clrwhite,
+                                      thumbShape: SliderComponentShape.noThumb,
+                                      overlayColor: CustomColors.clrwhite.withOpacity(0.7),
+                                      valueIndicatorColor: CustomColors.clrwhite,
+                                    ),
+                                    child: Slider(
+                                      min: 0.0,
+                                      max: audioManager.duration.inSeconds.toDouble(),
+                                      value: audioManager.currentPosition.inSeconds.toDouble(),
+                                      onChanged: (double value) {
+                                        audioManager.seekTo(Duration(seconds: value.toInt()));
+                                      },
+                                    ),
+                                  ),
                                 ),
-                              )
+                              ),
                             ],
                           ),
                         ),

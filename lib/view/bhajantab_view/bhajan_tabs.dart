@@ -358,6 +358,7 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
                                 0, // Nothing will Happen By this id.
                                 filteredCategories,
                                 widget.godNameEng,
+                                widget.godNameHindi,
                                 categoryId: widget.categoryId,
                                 isToggle: true,
                                 isAllTab: false,
@@ -368,11 +369,13 @@ class _BhajanTabsState extends State<BhajanTabs> with TickerProviderStateMixin {
                                     cat.id,
                                     filteredCategories,
                                     widget.godNameEng,
+                                    widget.godNameHindi,
                                     categoryId: widget.categoryId,
                                     isToggle: true,
                                     isAllTab: true,
                                     isFixedTab: false,
                                     isMusicBarVisible: true,
+
                                   )),
                             ],
                           ),

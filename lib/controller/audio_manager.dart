@@ -117,6 +117,13 @@ class AudioPlayerManager extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  void stopMusic(){
+    _audioPlayer.stop();
+    _isPlaying = false;
+    notifyListeners();
+
+  }
+
   void skipPrevious({List<Sangeet>? fixedTabMusicList}) {
     List<Sangeet> playlist = fixedTabMusicList ?? _playlist;
 
