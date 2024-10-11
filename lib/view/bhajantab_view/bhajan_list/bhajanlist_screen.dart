@@ -11,13 +11,17 @@ import '../../../controller/share_music.dart';
 import '../../../ui_helper/custom_colors.dart';
 
 class BhajanList extends StatefulWidget {
-  BhajanList(this.subCategoryId, this.subCategoryModel, this.godName,this.godNameHindi,
-      {
-      required this.categoryId,
-      required this.isToggle,
-      required this.isFixedTab,
-      required this.isAllTab,
-      required this.isMusicBarVisible});
+  BhajanList(
+    this.subCategoryId,
+    this.subCategoryModel,
+    this.godName,
+    this.godNameHindi, {
+    required this.categoryId,
+    required this.isToggle,
+    required this.isFixedTab,
+    required this.isAllTab,
+    required this.isMusicBarVisible,
+  });
 
   int subCategoryId;
   final List subCategoryModel;
@@ -35,25 +39,38 @@ class BhajanList extends StatefulWidget {
 
 class _BhajanListState extends State<BhajanList>
     with SingleTickerProviderStateMixin {
-
   late AudioPlayerManager audioManager;
   late bool _isMusicBarVisible;
 
   bool _isLoading = true;
-   //bool _noData = true;
-   bool _noData = false;
+  bool isLoading = true;
   final shareMusic = ShareMusic();
 
   @override
   void initState() {
     super.initState();
-    fetchMusicData();
+
+    // By default, assume the fixed tab is selected
+    if (widget.isFixedTab) {
+      // Call the method to fetch data for the fixed tab
+      getAllCategoryData();
+      //  getAllCategoryData();// Replace this with your specific method for the fixed tab
+      print("Fetching data for Fixed Tab.");
+    } else if (widget.isAllTab) {
+      // Call the method to fetch data for the all tab
+      fetchMusicData(); // Replace this with your specific method for the all tab
+      print("Fetching data for All Tab.");
+    }
+
+    // Handle refresh if needed
     _handleRefresh();
 
+    // Set visibility based on the toggle parameter
+    _isMusicBarVisible = widget.isToggle;
     print("SubModel Length Is ${widget.subCategoryModel.length}");
 
+    // Get all category data as required
     getAllCategoryData();
-    _isMusicBarVisible = widget.isMusicBarVisible;
     print("My SubCategory Id Is ${widget.subCategoryId}");
   }
 
@@ -87,7 +104,7 @@ class _BhajanListState extends State<BhajanList>
   List<Sangeet> musiclistdata = [];
 
   Future<void> fetchMusicData() async {
-    String currentLanguage = context.read<LanguageManager>().nameLanguage;
+    String currentLanguage = context.read<LanguageManager>().selectedLanguage;
 
     print(" My Current Selected Language Is $currentLanguage");
 
@@ -96,31 +113,32 @@ class _BhajanListState extends State<BhajanList>
         'https://mahakal.rizrv.in/api/v1/sangeet/sangeet-details?subcategory_id=${widget.subCategoryId}&language=$currentLanguage',
       );
 
-      //  print(" My Coming Language is ${languageManager.nameLanguage}");
+      //  print(" My Coming Language is ${languageManager.selectedLanguage}");
       if (musicListResponse != null) {
         final sangeetModel = SangeetModel.fromJson(musicListResponse);
 
         setState(() {
           musiclistdata.clear();
-          musiclistdata = sangeetModel.sangeet.where((item) => item.status == 1).toList();
+          musiclistdata =
+              sangeetModel.sangeet.where((item) => item.status == 1).toList();
           // musiclistdata = sangeetModel.sangeet;
           audioManager.setPlaylist(musiclistdata);
           _isLoading = false;
-          _noData = false;
+        //  _noData = false;
         });
       } else {
         print("Error: The response is null or improperly formatted.");
         setState(() {
           _isLoading = false;
-          _noData = musiclistdata.isEmpty;
-          _noData = true;
+         // _noData = musiclistdata.isEmpty;
+         // _noData = true;
         });
       }
     } catch (error) {
       print("Failed to fetch music data: $error");
       setState(() {
         _isLoading = false;
-        _noData = true;
+        //_noData = true;
       });
     }
   }
@@ -130,41 +148,23 @@ class _BhajanListState extends State<BhajanList>
   List<Sangeet> allcategorymodel = [];
 
   Future<void> getAllCategoryData() async {
-    String currentLanguage = context.read<LanguageManager>().nameLanguage;
+    String currentLanguage = context.read<LanguageManager>().selectedLanguage;
 
     try {
       final res = await ApiService().getAllCategory(
         "https://mahakal.rizrv.in/api/v1/sangeet/sangeet-all-details?category_id=${widget.categoryId}&language=$currentLanguage",
       );
 
-      // if(res!=null){
-      //
-      //   setState(() {
-      //     _noData = false;
-      //   });
-
-        final List<Sangeet> categoryList = (res as List).map((e) => Sangeet.fromJson(e)).toList();
-        setState(() {
-          allcategorymodel = categoryList.where((item) => item.status == 1).toList();
-          _noData = allcategorymodel.isEmpty;
-        });
-
-
-    //  }
-    //   else{
-    //
-    //     setState(() {
-    //       _noData = true;
-    //     });
-    //
-    //   }
-
-
+      final List<Sangeet> categoryList =
+          (res as List).map((e) => Sangeet.fromJson(e)).toList();
+      setState(() {
+        allcategorymodel =
+            categoryList.where((item) => item.status == 1).toList();
+       // _noData = allcategorymodel.isEmpty;
+      });
     } catch (error) {
       print("Failed to fetch all category data: $error");
       setState(() {
-       // _noData = true;
-
       });
     }
   }
@@ -201,133 +201,147 @@ class _BhajanListState extends State<BhajanList>
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return
-    _noData? Center(child: Text("No Data Here")):
+    if (_isLoading) {
+      // Show loading indicator
+      return Center(child: CircularProgressIndicator());
+    }
 
-    ListView.builder(
+    // Check if there's data in the relevant lists based on the tab type
+    bool hasData;
+    if (widget.isFixedTab) {
+      hasData = allcategorymodel.isNotEmpty;
+      print("Fixed Tab - Data Available: $hasData, Count: ${allcategorymodel.length}");
+    } else if (widget.isAllTab) {
+      hasData = musiclistdata.isNotEmpty;
+      print("All Tab - Data Available: $hasData, Count: ${musiclistdata.length}");
+    } else {
+      hasData = widget.subCategoryModel.isNotEmpty; // For other tab types
+      print("Subcategory Tab - Data Available: $hasData, Count: ${widget.subCategoryModel.length}");
+    }
+
+    // If no data is available, show the "No Data Here" message
+    if (!hasData) {
+      return Center(child: Text("No Data Here"));
+    }
+
+    // Display the list if there is data
+    return ListView.builder(
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: widget.isFixedTab
           ? allcategorymodel.length
           : widget.isAllTab
-              ? musiclistdata.length
-              : widget.subCategoryModel.length,
+          ? musiclistdata.length
+          : widget.subCategoryModel.length,
       padding: EdgeInsets.symmetric(vertical: screenWidth * 0.03),
       itemBuilder: (context, index) {
         final itemData = widget.isFixedTab
             ? allcategorymodel[index]
             : widget.isAllTab
-                ? musiclistdata[index]
-                : widget.subCategoryModel[index];
+            ? musiclistdata[index]
+            : widget.subCategoryModel[index];
 
         return InkWell(
           onTap: () => playMusic(index),
           child: Padding(
-              padding: EdgeInsets.symmetric(
-                vertical: screenWidth * 0.01,
-                horizontal: screenWidth * 0.04,
-              ),
-              child: Row(
-                children: [
-                  audioManager.currentMusic != null &&
-                          audioManager.currentMusic!.id == itemData.id
-                      ? Container(
-                          height: screenHeight * 0.05,
-                          width: screenWidth * 0.1,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              width: 4,
-                              color: CustomColors.clrorange,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                            gradient: const LinearGradient(
-                              colors: [Colors.transparent, Colors.transparent],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                          ),
-                          child: Container(
-                            height: screenHeight * 0.05,
-                            width: screenWidth * 0.1,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6),
-                              image: DecorationImage(
-                                image: NetworkImage(itemData.image),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        )
-                      : Container(
-                          height: screenHeight * 0.05,
-                          width: screenWidth * 0.1,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6),
-                            image: DecorationImage(
-                              image: NetworkImage(itemData.image),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: screenWidth * 0.4,
-                          child: Text(
-                            itemData.title,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: screenWidth * 0.04,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            maxLines: 1,
-                          ),
-                        ),
-                        SizedBox(
-                          width: screenWidth * 0.3,
-                          child: Text(
-                            itemData.singerName,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: screenWidth * 0.03,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            maxLines: 1,
-                          ),
-                        ),
-                      ],
+            padding: EdgeInsets.symmetric(
+              vertical: screenWidth * 0.01,
+              horizontal: screenWidth * 0.04,
+            ),
+            child: Row(
+              children: [
+                // Show the image with a play indicator if the music is currently playing
+                audioManager.currentMusic != null &&
+                    audioManager.isPlaying &&
+                    audioManager.currentMusic!.id == itemData.id
+                    ? Container(
+                  height: screenHeight * 0.05,
+                  width: screenWidth * 0.1,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    image: DecorationImage(
+                      image: NetworkImage(itemData.image),
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  const Spacer(),
-                  IconButton(
-                    icon: Icon(
-                      // Icons.notifications_active_sharp,
-                      Icons.offline_share_sharp,
-                      color: Colors.orange,
-                      size: screenWidth * 0.06,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6),
+                      color: Colors.black.withOpacity(0.5),
                     ),
-                    onPressed: () {
-                      //_showShareBottomSheet();
-                      // _shareSong(itemData);
-                      shareMusic.shareSong(itemData);
-                      print("Hello Data");
-                    },
-                  ),
-                  GestureDetector(
-                    onTap: () => _showBottomSheet(index),
-                    child: Icon(
-                      Icons.more_vert_rounded,
-                      color: Colors.orange,
-                      size: screenWidth * 0.07,
+                    child: Image(
+                      image: NetworkImage(
+                        "https://cdn.pixabay.com/animation/2023/10/22/03/31/03-31-40-761_512.gif",
+                      ),
+                      color: Colors.white,
                     ),
                   ),
-                ],
-              )
-              ),
+                )
+                    : Container(
+                  height: screenHeight * 0.05,
+                  width: screenWidth * 0.1,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    image: DecorationImage(
+                      image: NetworkImage(itemData.image),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: screenWidth * 0.4,
+                        child: Text(
+                          itemData.title,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: screenWidth * 0.04,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          maxLines: 1,
+                        ),
+                      ),
+                      SizedBox(
+                        width: screenWidth * 0.3,
+                        child: Text(
+                          itemData.singerName,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: screenWidth * 0.03,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: Icon(
+                    Icons.offline_share_sharp,
+                    color: Colors.orange,
+                    size: screenWidth * 0.06,
+                  ),
+                  onPressed: () {
+                    shareMusic.shareSong(itemData);
+                  },
+                ),
+                GestureDetector(
+                  onTap: () => _showBottomSheet(index),
+                  child: Icon(
+                    Icons.more_vert_rounded,
+                    color: Colors.orange,
+                    size: screenWidth * 0.07,
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -344,15 +358,18 @@ class _BhajanListState extends State<BhajanList>
           body: Stack(
             children: [
               _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: CustomColors.clrblack,))
-                 // : _noData
-                 // ? Center(child: Text("${"No Data"}", style: TextStyle(color: CustomColors.clrblack),))
+                  ? const Center(
+                child: CircularProgressIndicator(
+                  color: CustomColors.clrblack,
+                ),
+              )
                   : RefreshIndicator(
-                      onRefresh: _handleRefresh,
-                      backgroundColor: CustomColors.clrwhite,
-                      color: CustomColors.clrblack,
-                      child: _buildMusicList(),
-                    ),
+                onRefresh: _handleRefresh,
+                backgroundColor: CustomColors.clrwhite,
+                color: CustomColors.clrblack,
+                child: _buildMusicList(),
+              ),
+              // Music bar logic remains the same
               if (_isMusicBarVisible && audioManager.currentMusic != null)
                 Align(
                   alignment: Alignment.bottomCenter,
@@ -365,26 +382,28 @@ class _BhajanListState extends State<BhajanList>
                         Navigator.push(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (context, animation,
-                                    secondaryAnimation) =>
-
-                            MusicPlayer(widget.godNameHindi,musicData: musiclistdata, categoryId: widget.categoryId, subCategoryId: widget.subCategoryId, allcategorymodel: allcategorymodel, MyCurrentIndex: audioManager.currentIndex, subCategoryModel: widget.subCategoryModel, godName: widget.godName),
-                            transitionsBuilder: (context, animation,
-                                secondaryAnimation, child) {
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                MusicPlayer(
+                                  widget.godNameHindi,
+                                  musicData: musiclistdata,
+                                  categoryId: widget.categoryId,
+                                  subCategoryId: widget.subCategoryId,
+                                  allcategorymodel: allcategorymodel,
+                                  MyCurrentIndex: audioManager.currentIndex,
+                                  subCategoryModel: widget.subCategoryModel,
+                                  godName: widget.godName,
+                                ),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
                               const begin = Offset(0.0, 1.0);
                               const end = Offset.zero;
                               const curve = Curves.easeInOutCirc;
-
-                              var tween = Tween(begin: begin, end: end)
-                                  .chain(CurveTween(curve: curve));
-
+                              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
                               return SlideTransition(
                                 position: animation.drive(tween),
                                 child: child,
                               );
                             },
-                            transitionDuration: const Duration(
-                                milliseconds: 1000), // Slow animation speed
+                            transitionDuration: const Duration(milliseconds: 1000),
                           ),
                         );
                       },
@@ -398,7 +417,6 @@ class _BhajanListState extends State<BhajanList>
                           ),
                           child: Column(
                             children: [
-                              
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
@@ -408,8 +426,7 @@ class _BhajanListState extends State<BhajanList>
                                     decoration: BoxDecoration(
                                       image: DecorationImage(
                                         image: NetworkImage(
-                                          audioManager.currentMusic!.image
-                                              .toString(),
+                                          audioManager.currentMusic!.image,
                                         ),
                                         fit: BoxFit.cover,
                                       ),
@@ -419,18 +436,16 @@ class _BhajanListState extends State<BhajanList>
                                   Expanded(
                                     child: Padding(
                                       padding: EdgeInsets.only(
-                                          top: screenWidth * 0.02,
-                                          left: screenWidth * 0.02),
+                                        top: screenWidth * 0.02,
+                                        left: screenWidth * 0.02,
+                                      ),
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           SizedBox(
                                             width: screenWidth * 0.5,
                                             child: Text(
-                                              audioManager.currentMusic?.title
-                                                      .toString() ??
-                                                  '',
+                                              audioManager.currentMusic?.title ?? '',
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
@@ -442,8 +457,7 @@ class _BhajanListState extends State<BhajanList>
                                           SizedBox(
                                             width: screenWidth * 0.5,
                                             child: Text(
-                                              audioManager.currentMusic?.singerName
-                                                      .toString() ?? '',
+                                              audioManager.currentMusic?.singerName ?? '',
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
@@ -456,36 +470,17 @@ class _BhajanListState extends State<BhajanList>
                                       ),
                                     ),
                                   ),
-
-
-                                  // IconButton(
-                                  //   onPressed: () {
-                                  //     audioManager.togglePlayPause();
-                                  //   },
-                                  //   icon: Icon(
-                                  //     audioManager.isPlaying
-                                  //         ? Icons.pause_circle_filled
-                                  //         : Icons.play_circle_filled,
-                                  //     color: Colors.white,
-                                  //     size: screenWidth * 0.1,
-                                  //   ),
-                                  // ),
-
-
-
-
                                   Row(
                                     children: [
-                                      // Skip Previous Button
                                       IconButton(
                                         onPressed: () {
                                           if (audioManager.isPlaying) {
-                                            if (widget.isFixedTab && allcategorymodel != null) {
+                                            if (widget.isFixedTab && allcategorymodel.isNotEmpty) {
                                               int currentIndex = allcategorymodel.indexOf(audioManager.currentMusic!);
                                               if (currentIndex > 0) {
                                                 audioManager.playMusic(allcategorymodel[currentIndex - 1]);
                                               } else {
-                                                audioManager.playMusic(allcategorymodel[allcategorymodel.length - 1]); // Loop back to the last song
+                                                audioManager.playMusic(allcategorymodel.last);
                                               }
                                             } else {
                                               audioManager.skipPrevious();
@@ -498,29 +493,23 @@ class _BhajanListState extends State<BhajanList>
                                           size: screenWidth * 0.08,
                                         ),
                                       ),
-
-                                      // Play and Pause
                                       GestureDetector(
                                         onTap: () => audioManager.togglePlayPause(),
                                         child: Icon(
-                                          audioManager.isPlaying
-                                              ? Icons.pause_circle
-                                              : Icons.play_circle,
+                                          audioManager.isPlaying ? Icons.pause_circle : Icons.play_circle,
                                           size: screenWidth * 0.08,
                                           color: CustomColors.clrwhite,
                                         ),
                                       ),
-
-                                      // Skip Next Button
                                       IconButton(
                                         onPressed: () {
                                           if (audioManager.isPlaying) {
-                                            if (widget.isFixedTab && allcategorymodel != null) {
+                                            if (widget.isFixedTab && allcategorymodel.isNotEmpty) {
                                               int currentIndex = allcategorymodel.indexOf(audioManager.currentMusic!);
                                               if (currentIndex < allcategorymodel.length - 1) {
                                                 audioManager.playMusic(allcategorymodel[currentIndex + 1]);
                                               } else {
-                                                audioManager.playMusic(allcategorymodel[0]); // Loop back to the first song
+                                                audioManager.playMusic(allcategorymodel.first);
                                               }
                                             } else {
                                               audioManager.skipNext();
@@ -533,12 +522,12 @@ class _BhajanListState extends State<BhajanList>
                                           size: screenWidth * 0.08,
                                         ),
                                       ),
-
-                                      // Remove Music Bar
                                       IconButton(
                                         onPressed: () {
                                           audioManager.stopMusic();
-                                          _toggleMusicBarVisibility();
+                                          setState(() {
+                                            _isMusicBarVisible = false;
+                                          });
                                         },
                                         icon: Icon(
                                           Icons.cancel,
@@ -546,68 +535,30 @@ class _BhajanListState extends State<BhajanList>
                                           size: screenWidth * 0.08,
                                         ),
                                       ),
-                                      
-                                      Icon(Icons.arrow_upward_rounded,color: Colors.white,weight: 4,size: screenWidth * 0.09,)
-                                      
+                                      Icon(
+                                        Icons.arrow_upward_rounded,
+                                        color: Colors.white,
+                                        size: screenWidth * 0.09,
+                                      ),
                                     ],
-                                  )
-
-
-
-
-                                  // IconButton(
-                                  //   onPressed: () {
-                                  //     if (audioManager.isPlaying) {
-                                  //       if (widget.isFixedTab &&
-                                  //           allcategorymodel != null) {
-                                  //         int currentIndex = allcategorymodel
-                                  //             .indexOf(audioManager.currentMusic!);
-                                  //         if (currentIndex <
-                                  //             allcategorymodel.length - 1) {
-                                  //           audioManager.playMusic(
-                                  //               allcategorymodel[currentIndex + 1]);
-                                  //         } else {
-                                  //           audioManager.playMusic(allcategorymodel[
-                                  //               0]); // Loop back to the first song
-                                  //         }
-                                  //       } else {
-                                  //         audioManager.skipNext();
-                                  //       }
-                                  //     } else {
-                                  //       _toggleMusicBarVisibility();
-                                  //     }
-                                  //   },
-                                  //   icon: Icon(
-                                  //     audioManager.isPlaying
-                                  //         ? Icons.skip_next
-                                  //         : Icons.highlight_remove_outlined,
-                                  //     color: Colors.white,
-                                  //     size: screenWidth * 0.1,
-                                  //   ),
-                                  // )
+                                  ),
                                 ],
                               ),
-
                               Padding(
-                                padding:EdgeInsets.symmetric(vertical: screenWidth * 0.01),
+                                padding: EdgeInsets.symmetric(vertical: screenWidth * 0.01),
                                 child: Container(
                                   height: 5,
                                   width: double.infinity,
                                   child: SliderTheme(
                                     data: SliderThemeData(
                                       activeTrackColor: CustomColors.clrwhite,
-                                      trackHeight: 1.7,
-                                      trackShape: const RectangularSliderTrackShape(),
                                       inactiveTrackColor: CustomColors.clrwhite.withOpacity(0.5),
-                                      thumbColor: CustomColors.clrwhite,
-                                      thumbShape: SliderComponentShape.noThumb,
-                                      overlayColor: CustomColors.clrwhite.withOpacity(0.7),
-                                      valueIndicatorColor: CustomColors.clrwhite,
+                                      trackHeight: 1.7,
                                     ),
                                     child: Slider(
                                       min: 0.0,
-                                      max: audioManager.duration.inSeconds.toDouble(),
-                                      value: audioManager.currentPosition.inSeconds.toDouble(),
+                                      max: audioManager.duration?.inSeconds.toDouble() ?? 1.0,
+                                      value: audioManager.currentPosition.inSeconds.toDouble().clamp(0.0, audioManager.duration?.inSeconds.toDouble() ?? 1.0),
                                       onChanged: (double value) {
                                         audioManager.seekTo(Duration(seconds: value.toInt()));
                                       },
@@ -629,6 +580,14 @@ class _BhajanListState extends State<BhajanList>
     );
   }
 
+  String getFavouriteText(bool isFavourite, languageManager) {
+    if (languageManager.selectedLanguage == 'English') {
+      return isFavourite ? "Remove from Favourite" : "Add to Favourite";
+    } else {
+      return isFavourite ? "पसंदीदा से हटाएँ" : "पसंदीदा में जोड़ें";
+    }
+  }
+
   void _showBottomSheet(int index) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -641,154 +600,203 @@ class _BhajanListState extends State<BhajanList>
           height: 200,
           child: Padding(
             padding: EdgeInsets.all(screenWidth * 0.05),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      height: screenHeight * 0.05,
-                      width: screenWidth * 0.1,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6),
-                        image: DecorationImage(
-                          image: NetworkImage((widget.isFixedTab
-                              ? allcategorymodel[index].image
-                              : widget.isAllTab
-                                  ? musiclistdata[index].image
-                                  : widget.subCategoryModel[index].image)),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: screenWidth * 0.4,
-                            child: Text(
-                              (widget.isFixedTab
-                                  ? allcategorymodel[index].title
-                                  : widget.isAllTab
-                                      ? musiclistdata[index].title
-                                      : widget.subCategoryModel[index].title),
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: screenWidth * 0.04,
-                                overflow: TextOverflow.ellipsis,
+            child: Consumer<FavouriteProvider>(
+              builder:
+                  (BuildContext context, favouriteProvider, Widget? child) {
+
+                final isFavourite = favouriteProvider.favouriteBhajan.any(
+                    (favourite) =>
+                        favourite!.audio ==
+                        (widget.isFixedTab
+                            ? allcategorymodel[index].audio
+                            : musiclistdata[index].audio));
+
+                return Consumer<LanguageManager>(
+                  builder:
+                      (BuildContext context, languageManager, Widget? child) {
+                    return Column(
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              height: screenHeight * 0.05,
+                              width: screenWidth * 0.1,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6),
+                                image: DecorationImage(
+                                  image: NetworkImage((widget.isFixedTab
+                                      ? allcategorymodel[index].image
+                                      : widget.isAllTab
+                                          ? musiclistdata[index].image
+                                          : widget
+                                              .subCategoryModel[index].image)),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
-                              maxLines: 1,
                             ),
-                          ),
-                          SizedBox(
-                            width: screenWidth * 0.3,
-                            child: Text(
-                              (widget.isFixedTab
-                                  ? allcategorymodel[index].singerName
-                                  : widget.isAllTab
-                                      ? musiclistdata[index].singerName
-                                      : widget
-                                          .subCategoryModel[index].singerName),
-                              style: TextStyle(
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: screenWidth * 0.03),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    width: screenWidth * 0.4,
+                                    child: Text(
+                                      (widget.isFixedTab
+                                          ? allcategorymodel[index].title
+                                          : widget.isAllTab
+                                              ? musiclistdata[index].title
+                                              : widget.subCategoryModel[index]
+                                                  .title),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: screenWidth * 0.04,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      maxLines: 1,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: screenWidth * 0.3,
+                                    child: Text(
+                                      (widget.isFixedTab
+                                          ? allcategorymodel[index].singerName
+                                          : widget.isAllTab
+                                              ? musiclistdata[index].singerName
+                                              : widget.subCategoryModel[index]
+                                                  .singerName),
+                                      style: TextStyle(
+                                        color: CustomColors.clrblack,
+                                        fontSize: screenWidth * 0.03,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      maxLines: 1,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Icon(
+                                Icons.cancel_presentation,
+                                size: screenWidth * 0.06,
                                 color: CustomColors.clrblack,
-                                fontSize: screenWidth * 0.03,
-                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 1,
                             ),
+                          ],
+                        ),
+                        const Divider(),
+                        SizedBox(
+                          height: screenWidth * 0.04,
+                        ),
+
+                        // GestureDetector(
+                        //   onTap: () {
+                        //     if (index < musiclistdata.length) {
+                        //       favouriteProvider.toggleBookmark(musiclistdata[index]);
+                        //       print("Added to favourite");
+                        //     } else {
+                        //       print("Invalid index");
+                        //     }
+                        //   },
+                        //   child: Row(
+                        //     children: [
+                        //       Icon(
+                        //         isFavourite ? Icons.favorite : Icons.favorite_border_sharp,
+                        //         size: screenWidth * 0.06,
+                        //         color: CustomColors.clrorange,
+                        //       ),
+                        //       SizedBox(width: screenWidth * 0.04),
+                        //       Text(
+                        //            "${ isFavourite ? "Remove from Favourite" : "Move to Favourite"}",
+                        //            style: TextStyle(
+                        //           fontSize: screenWidth * 0.04,
+                        //           fontWeight: FontWeight.bold,
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
+
+                        GestureDetector(
+                          onTap: () {
+                            favouriteProvider.toggleBookmark(
+                                widget.isFixedTab
+                                    ? allcategorymodel[index]
+                                    : musiclistdata[index],
+                                isFixedTab: widget.isFixedTab);
+                            print("Added to favourite");
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                isFavourite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border_sharp,
+                                size: screenWidth * 0.06,
+                                color: CustomColors.clrorange,
+                              ),
+                              SizedBox(width: screenWidth * 0.04),
+                              Text(
+                                getFavouriteText(isFavourite, languageManager),
+                                style: TextStyle(
+                                  fontSize: screenWidth * 0.04,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                    Spacer(),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Icon(
-                        Icons.cancel_presentation,
-                        size: screenWidth * 0.06,
-                        color: CustomColors.clrblack,
-                      ),
-                    ),
-                  ],
-                ),
-                Divider(),
-                SizedBox(
-                  height: screenWidth * 0.04,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    final favoriteProvider =
-                        Provider.of<FavoriteProvider>(context, listen: false);
-
-                    // Add musiclistdata[index] to favorites
-                    favoriteProvider.addToFavorites(musiclistdata[index]);
-
-                    // Add allcategorymodel to favorites
-                    favoriteProvider.addToFavorites(allcategorymodel[index]);
-
-                    // Close the dialog or navigate back
-                    Navigator.pop(context);
-                  },
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.favorite_border,
-                        size: screenWidth * 0.06,
-                        color: CustomColors.clrorange,
-                      ),
-                      SizedBox(width: screenWidth * 0.04),
-                      Text(
-                        "Move to Favourite",
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.04,
-                          fontWeight: FontWeight.bold,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: screenWidth * 0.04),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Lyricsbhajan(
-                              widget.isFixedTab
-                                  ? allcategorymodel[index].lyrics
-                                  : widget.isAllTab
-                                      ? musiclistdata[index].lyrics
-                                      : musiclistdata[index].lyrics,
-                              widget.isFixedTab
-                                  ? allcategorymodel[index].title
-                                  : widget.isAllTab
-                                      ? musiclistdata[index].title
-                                      : musiclistdata[index].title),
-                        ));
-                  },
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.menu_book_outlined,
-                        size: screenWidth * 0.06,
-                        color: CustomColors.clrorange,
-                      ),
-                      SizedBox(width: screenWidth * 0.04),
-                      Text(
-                        "View Lyrics of the Music",
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.04,
-                          fontWeight: FontWeight.bold,
+
+                        SizedBox(height: screenWidth * 0.04),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Lyricsbhajan(
+                                      musicLyrics: widget.isFixedTab
+                                          ? allcategorymodel[index].lyrics
+                                          : widget.isAllTab
+                                              ? musiclistdata[index].lyrics
+                                              : musiclistdata[index].lyrics,
+                                      musicName: widget.isFixedTab
+                                          ? allcategorymodel[index].title
+                                          : widget.isAllTab
+                                              ? musiclistdata[index].title
+                                              : musiclistdata[index].title),
+                                ));
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.menu_book_outlined,
+                                size: screenWidth * 0.06,
+                                color: CustomColors.clrorange,
+                              ),
+                              SizedBox(width: screenWidth * 0.04),
+                              Text(
+                                languageManager.selectedLanguage == 'English'
+                                    ? "View Lyrics of the Music"
+                                    : "संगीत के बोल देखें",
+                                style: TextStyle(
+                                  fontSize: screenWidth * 0.04,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                      ],
+                    );
+                  },
+                );
+              },
             ),
           ),
         );

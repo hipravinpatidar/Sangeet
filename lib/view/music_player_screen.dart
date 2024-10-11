@@ -2,9 +2,11 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import 'package:sangit/controller/audio_manager.dart';
+import 'package:sangit/controller/favourite_manager.dart';
 import 'package:sangit/controller/language_manager.dart';
 import 'package:sangit/controller/share_music.dart';
 import 'package:sangit/model/sangeet_model.dart';
@@ -30,7 +32,7 @@ class MusicPlayer extends HookWidget {
   final List<Sangeet> allcategorymodel;
   final String godName;
   final String godNameHindi;
-  final List musicData;
+  final List<Sangeet> musicData;
   final int categoryId;
   final int subCategoryId;
 
@@ -38,8 +40,6 @@ class MusicPlayer extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-   // const collapsedBarHeight = 100.0;
-   // const expandedBarHeight = 500.0;
    var expandedBarHeight = MediaQuery.of(context).size.height * 0.62;
    var collapsedBarHeight = MediaQuery.of(context).size.height * 0.12;
 
@@ -69,7 +69,7 @@ class MusicPlayer extends HookWidget {
             child: Consumer<LanguageManager>(
               builder: (BuildContext context, languageManager, Widget? child) {
                 return Text(
-                  languageManager.nameLanguage == 'English' ? "All" : "सभी",
+                  languageManager.selectedLanguage == 'English' ? "All" : "सभी",
                   style: TextStyle(
                       fontSize: screenWidth * 0.03, fontWeight: FontWeight.bold),
                 );
@@ -96,7 +96,7 @@ class MusicPlayer extends HookWidget {
               child: Consumer<LanguageManager>(
                 builder: (BuildContext context, languageManager, Widget? child) {
                   return Text(
-                    languageManager.nameLanguage == 'English' ? cat.enName : cat.hiName,
+                    languageManager.selectedLanguage == 'English' ? cat.enName : cat.hiName,
                     style: TextStyle(
                         fontSize: screenWidth * 0.03, fontWeight: FontWeight.bold),
                   );
@@ -160,7 +160,7 @@ class MusicPlayer extends HookWidget {
                             audioManager: audioManager,
                             allcategorymodel: allcategorymodel,
                             musicData: musicData,
-                            selectedIndex: selectedIndex.value,
+                            selectedIndex: selectedIndex.value, musicIndex: MyCurrentIndex,
                           ),
                         ),
                         bottom: PreferredSize(
@@ -196,7 +196,7 @@ class MusicPlayer extends HookWidget {
                                             width: screenWidth * 0.02,
                                           ),
                                           Text(
-                                            languageManager.nameLanguage == 'English' ? "Divine Music of $godName" : "संगीत संग्रह $godNameHindi",
+                                            languageManager.selectedLanguage == 'English' ? "Divine Music of $godName" : "संगीत संग्रह $godNameHindi",
                                             style: const TextStyle(
                                               color: Colors.black,
                                               fontSize: 20,
@@ -236,7 +236,7 @@ class MusicPlayer extends HookWidget {
                                       borderRadius: BorderRadius.circular(5)),
                                   tabs: tabs,
                                 ),
-                                Divider(),
+                                const Divider(),
                               ],
                             ),
                           ),
@@ -483,110 +483,7 @@ class _CollapsedAppBarContentState extends State<CollapsedAppBarContent> {
                     ),
                   ],
                 )
-
-
-
-                // const Spacer(),
-                // GestureDetector(
-                //   onTap: () => audioManager.togglePlayPause(),
-                //   child: Icon(
-                //     audioManager.isPlaying ? Icons.pause : Icons.play_arrow,
-                //     size: screenWidth * 0.07,
-                //     color: CustomColors.clrwhite,
-                //   ),
-                // ),
-                // SizedBox(
-                //   width: screenWidth * 0.05,
-                // ),
-                // GestureDetector(
-                //   onTap: () {
-                //     if (audioManager != null) {
-                //       if (widget.selectedIndex == 0) {
-                //         // Fixed tab logic
-                //         Sangeet? currentMusic = audioManager.currentMusic;
-                //
-                //         if (currentMusic != null) {
-                //           int currentIndex =
-                //               widget.allcategorymodel.indexOf(currentMusic);
-                //           print("Current music index: $currentIndex");
-                //
-                //           if (currentIndex != -1) {
-                //             if (currentIndex < widget.allcategorymodel.length - 1) {
-                //               // Play the next song
-                //               audioManager.playMusic(
-                //                   widget.allcategorymodel[currentIndex + 1]);
-                //               print("Play the next song");
-                //             } else {
-                //               // Loop back to the first song
-                //               audioManager.playMusic(widget.allcategorymodel.first);
-                //               print("Loop back to the first song");
-                //             }
-                //           } else {
-                //             // Handle case where currentMusic is not in the list
-                //             if (widget.allcategorymodel.isNotEmpty) {
-                //               print(
-                //                   "Handle case where currentMusic is not in the list");
-                //               audioManager.playMusic(widget.allcategorymodel.first);
-                //             } else {
-                //               print("No music available in the list");
-                //             }
-                //           }
-                //         } else {
-                //           // Handle case where currentMusic is null
-                //           if (widget.allcategorymodel.isNotEmpty) {
-                //             audioManager.playMusic(widget.allcategorymodel.first);
-                //             print("Handle case where currentMusic is null");
-                //           } else {
-                //             print("No music available in the list");
-                //           }
-                //         }
-                //       } else {
-                //         // Dynamic tab logic
-                //         audioManager
-                //             .skipNext(); // Skip to next song in the dynamic list
-                //         print("Skip to next song in the dynamic list");
-                //       }
-                //     }
-                //   },
-                //   child: Icon(
-                //     Icons.skip_next,
-                //     color: CustomColors.clrwhite,
-                //     size: screenWidth * 0.07,
-                //   ),
-                // ),
-
-
-
               ]),
-
-              Padding(
-                padding:EdgeInsets.symmetric(vertical: screenWidth * 0.01),
-                child: Container(
-                  height: 5,
-                  width: double.infinity,
-                  child: SliderTheme(
-                    data: SliderThemeData(
-                      activeTrackColor: CustomColors.clrwhite,
-                      trackHeight: 1.7,
-                      trackShape: const RectangularSliderTrackShape(),
-                      inactiveTrackColor: CustomColors.clrwhite.withOpacity(0.5),
-                      thumbColor: CustomColors.clrwhite,
-                      thumbShape: SliderComponentShape.noThumb,
-                      overlayColor: CustomColors.clrwhite.withOpacity(0.7),
-                      valueIndicatorColor: CustomColors.clrwhite,
-                    ),
-                    child: Slider(
-                      min: 0.0,
-                      max: audioManager.duration.inSeconds.toDouble(),
-                      value: audioManager.currentPosition.inSeconds.toDouble(),
-                      onChanged: (double value) {
-                        audioManager.seekTo(Duration(seconds: value.toInt()));
-                      },
-                    ),
-                  ),
-                ),
-              ),
-
             ],
           ),
         );
@@ -632,15 +529,16 @@ class BlurredBackdropImage extends StatelessWidget {
 class ExpandedAppBarContent extends StatefulWidget {
   final AudioPlayerManager audioManager;
   final List<Sangeet> allcategorymodel;
-  final List musicData;
+  final List<Sangeet> musicData;
   final int selectedIndex;
+  final int musicIndex;
 
   const ExpandedAppBarContent(
       {
       required this.audioManager,
       required this.allcategorymodel,
       required this.musicData,
-      required this.selectedIndex});
+      required this.selectedIndex, required this.musicIndex});
 
   @override
   State<ExpandedAppBarContent> createState() => _ExpandedAppBarContentState();
@@ -697,247 +595,266 @@ class _ExpandedAppBarContentState extends State<ExpandedAppBarContent> {
       builder: (BuildContext context, audiomanager, Widget? child) {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: screenWidth * 0.15,
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+          child: Consumer<FavouriteProvider>(
+            builder: (BuildContext context, favouriteProvider, Widget? child) {
+
+
+    Sangeet? currentMusic = audiomanager.currentMusic;
+
+    if (currentMusic != null) {
+    final isFavourite = favouriteProvider.favouriteBhajan.any((favourite) => favourite!.audio == currentMusic.audio);
+
+              return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.9)
-                        ),
-                        child: Padding(
-                            padding: EdgeInsets.all(screenWidth * 0.01),
-                            child: Icon(Icons.arrow_back_ios_rounded,
-                                 // size: screenWidth * 0.07,
-                                  color:CustomColors.clrblack),
+                    SizedBox(height: screenWidth * 0.17),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              child: Padding(
+                                padding: EdgeInsets.all(screenWidth * 0.01),
+                                child: Column(
+                                  children: [
+                                    Icon(Icons.arrow_back_ios_rounded, size: screenWidth * 0.06, color: Colors.white),
+                                    const Text("Back", style: TextStyle(color: Colors.white)),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
+                          SizedBox(width: screenWidth * 0.53),
+                          GestureDetector(
+                            onTap: () {
+                              shareMusic.shareSong(audiomanager.currentMusic!);
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.all(screenWidth * 0.01),
+                              child: const Column(
+                                children: [
+                                  Icon(Icons.share, color: Colors.white),
+                                  Text("Share", style: TextStyle(color: Colors.white)),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: screenWidth * 0.05, width: screenWidth * 0.05),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Lyricsbhajan(
+                                    musicLyrics: audiomanager.currentMusic!.lyrics,
+                                      musicName: audiomanager.currentMusic!.title),
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.all(screenWidth * 0.01),
+                              child: const Column(
+                                children: [
+                                  ImageIcon(AssetImage("assets/image/lyrics.png"), color: Colors.white),
+                                  Text("Lyrics", style: TextStyle(color: Colors.white)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-
-                    SizedBox(width: screenWidth * 0.61,),
-
-                    GestureDetector(
-                      onTap: () {
-                        shareMusic.shareSong(audiomanager.currentMusic!);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.9)
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(screenWidth * 0.01),
-                          child: Icon(Icons.share,
-                             // size: screenWidth * 0.07,
-                              color:CustomColors.clrblack),
-                        ),
+                    SizedBox(height: screenWidth * 0.22),
+                    Center(
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            width: screenWidth * 0.6,
+                            child: Text(
+                              audiomanager.currentMusic?.title ?? 'No Title',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: screenWidth * 0.06,
+                                fontWeight: FontWeight.bold,
+                                color: CustomColors.clrwhite,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              maxLines: 1,
+                            ),
+                          ),
+                          SizedBox(
+                            width: screenWidth * 0.4,
+                            child: Text(
+                              audiomanager.currentMusic?.singerName ?? 'No Singer',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: screenWidth * 0.05,
+                                color: CustomColors.clrwhite,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              maxLines: 1,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                    // Additional widget content here...
 
-                    SizedBox(height: screenWidth * 0.05,width: screenWidth * 0.06,),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Lyricsbhajan(
-                                  audiomanager.currentMusic!.lyrics,
-                                  audiomanager.currentMusic!.title),
-                            ));
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.9)
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(screenWidth * 0.01),
-                          child: Icon(Icons.note_alt,
-                              //size: screenWidth * 0.07,
-                              color:CustomColors.clrblack),
-                        ),
-                      ),
-                    ),
 
+                          SliderTheme(
+                            data: SliderThemeData(
+                              activeTrackColor: CustomColors.clrwhite,
+                              trackHeight: 1.5,
+                              trackShape: const RectangularSliderTrackShape(),
+                              inactiveTrackColor: CustomColors.clrwhite.withOpacity(0.5),
+                              thumbColor: CustomColors.clrwhite,
+                              overlayColor: CustomColors.clrwhite.withOpacity(0.7),
+                              valueIndicatorColor: CustomColors.clrwhite,
+                            ),
+                            child: Slider(
+                              min: 0.0,
+                              max: audiomanager.duration.inSeconds.toDouble(),
+                              value: audiomanager.currentPosition.inSeconds.toDouble(),
+                              onChanged: (double value) {
+                                audiomanager.seekTo(Duration(seconds: value.toInt()));
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.2,
+                                  child: Text(
+                                    formatDuration(audiomanager.currentPosition),
+                                    style: TextStyle(
+                                        color: CustomColors.clrwhite,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: MediaQuery.of(context).size.width * 0.04),
+                                    maxLines: 1,
+                                  ),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  formatDuration(audiomanager.duration),
+                                  style: TextStyle(
+                                      color: CustomColors.clrwhite,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: MediaQuery.of(context).size.width * 0.04),
+                                  maxLines: 1,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                            child: Row(
+                              children: [
+                                GestureDetector(
+                                    onTap: () =>
+                                        _showShuffleOptionsDialog(context, audiomanager),
+                                    child: Icon(Icons.shuffle,
+                                        size: screenWidth * 0.08,
+                                        color: CustomColors.clrwhite)),
+                                SizedBox(width: screenHeight * 0.07),
+
+                                GestureDetector(
+                                  onTap: () {
+                                    if (widget.selectedIndex == 0) {
+                                      print("My Index is ${widget.selectedIndex}");
+                                      // Fixed tab logic for skip previous
+                                      int currentIndex = widget.allcategorymodel
+                                          .indexOf(audiomanager.currentMusic!);
+                                      if (currentIndex > 0) {
+                                        playMusic(currentIndex - 1);
+                                      } else {
+                                        playMusic(widget.allcategorymodel.length -
+                                            1); // Loop back to the last song
+                                      }
+                                    } else {
+                                      print("My dynamic index ${widget.selectedIndex}");
+                                      audiomanager
+                                          .skipPrevious(); // Assuming you have a skipPrevious method in your audioManager
+                                    }
+                                  },
+                                  child: Icon(Icons.skip_previous,
+                                      size: screenWidth * 0.1,
+                                      color: CustomColors.clrwhite),
+                                ),
+
+                                SizedBox(width: screenWidth * 0.06),
+                                GestureDetector(
+                                  onTap: () => audiomanager.togglePlayPause(),
+                                  child: Icon(
+                                    audiomanager.isPlaying
+                                        ? Icons.pause_circle
+                                        : Icons.play_circle,
+                                    size: screenHeight * 0.07,
+                                    color: CustomColors.clrwhite,
+                                  ),
+                                ),
+                                SizedBox(width: screenWidth * 0.06),
+
+                                GestureDetector(
+                                  onTap: () {
+                                    if (widget.selectedIndex == 0) {
+                                      print("My Index is ${widget.selectedIndex}");
+                                      // Fixed tab logic for skip next
+                                      int currentIndex = widget.allcategorymodel
+                                          .indexOf(audiomanager.currentMusic!);
+
+                                      print(" My real Current Index is ${currentIndex}");
+
+                                      if (currentIndex <
+                                          widget.allcategorymodel.length - 1) {
+                                        playMusic(currentIndex + 1);
+                                      } else {
+                                        playMusic(0); // Loop back to the first song
+                                      }
+                                    } else {
+                                      print("My dynamic index ${widget.selectedIndex}");
+                                      audiomanager
+                                          .skipNext(); // Assuming you have a skipNext method in your audioManager
+                                    }
+                                  },
+                                  child: Icon(Icons.skip_next,
+                                      size: screenWidth * 0.1,
+                                      color: CustomColors.clrwhite),
+                                ),
+
+                                Spacer(),
+
+                                GestureDetector(
+                                  onTap: () {
+
+                                   favouriteProvider.toggleBookmark(currentMusic!);
+                                    print("Added to favourite");
+
+                                  },
+                                  child: Icon(
+                                    isFavourite ? Icons.favorite : Icons.favorite_border_sharp,
+                                    size: screenWidth * 0.08,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
                   ],
-                ),
-              ),
-              SizedBox(
-                height: screenWidth * 0.24,
-              ),
-              Center(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: screenWidth * 0.6,
-                      child: Text(
-                        audiomanager.currentMusic?.title ?? 'No Title',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: screenWidth * 0.06,
-                            fontWeight: FontWeight.bold,
-                            color: CustomColors.clrwhite,
-                            overflow: TextOverflow.ellipsis),
-                        maxLines: 1,
-                      ),
-                    ),
-                    SizedBox(
-                      width: screenWidth * 0.4,
-                      child: Text(
-                        audiomanager.currentMusic?.singerName ?? 'No Singer',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: screenWidth * 0.05,
-                            color: CustomColors.clrwhite,
-                            overflow: TextOverflow.ellipsis),
-                        maxLines: 1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SliderTheme(
-                data: SliderThemeData(
-                  activeTrackColor: CustomColors.clrwhite,
-                  trackHeight: 1.5,
-                  trackShape: const RectangularSliderTrackShape(),
-                  inactiveTrackColor: CustomColors.clrwhite.withOpacity(0.5),
-                  thumbColor: CustomColors.clrwhite,
-                  overlayColor: CustomColors.clrwhite.withOpacity(0.7),
-                  valueIndicatorColor: CustomColors.clrwhite,
-                ),
-                child: Slider(
-                  min: 0.0,
-                  max: audiomanager.duration.inSeconds.toDouble(),
-                  value: audiomanager.currentPosition.inSeconds.toDouble(),
-                  onChanged: (double value) {
-                    audiomanager.seekTo(Duration(seconds: value.toInt()));
-                  },
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.2,
-                      child: Text(
-                        formatDuration(audiomanager.currentPosition),
-                        style: TextStyle(
-                            color: CustomColors.clrwhite,
-                            fontWeight: FontWeight.bold,
-                            fontSize: MediaQuery.of(context).size.width * 0.04),
-                        maxLines: 1,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      formatDuration(audiomanager.duration),
-                      style: TextStyle(
-                          color: CustomColors.clrwhite,
-                          fontWeight: FontWeight.bold,
-                          fontSize: MediaQuery.of(context).size.width * 0.04),
-                      maxLines: 1,
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                        onTap: () =>
-                            _showShuffleOptionsDialog(context, audiomanager),
-                        child: Icon(Icons.shuffle,
-                            size: screenWidth * 0.08,
-                            color: CustomColors.clrwhite)),
-                    SizedBox(width: screenHeight * 0.07),
-
-                    GestureDetector(
-                      onTap: () {
-                        if (widget.selectedIndex == 0) {
-                          print("My Index is ${widget.selectedIndex}");
-                          // Fixed tab logic for skip previous
-                          int currentIndex = widget.allcategorymodel
-                              .indexOf(audiomanager.currentMusic!);
-                          if (currentIndex > 0) {
-                            playMusic(currentIndex - 1);
-                          } else {
-                            playMusic(widget.allcategorymodel.length -
-                                1); // Loop back to the last song
-                          }
-                        } else {
-                          print("My dynamic index ${widget.selectedIndex}");
-                          audiomanager
-                              .skipPrevious(); // Assuming you have a skipPrevious method in your audioManager
-                        }
-                      },
-                      child: Icon(Icons.skip_previous,
-                          size: screenWidth * 0.1,
-                          color: CustomColors.clrwhite),
-                    ),
-
-                    SizedBox(width: screenWidth * 0.06),
-                    GestureDetector(
-                      onTap: () => audiomanager.togglePlayPause(),
-                      child: Icon(
-                        audiomanager.isPlaying
-                            ? Icons.pause_circle
-                            : Icons.play_circle,
-                        size: screenHeight * 0.07,
-                        color: CustomColors.clrwhite,
-                      ),
-                    ),
-                    SizedBox(width: screenWidth * 0.06),
-
-                    GestureDetector(
-                      onTap: () {
-                        if (widget.selectedIndex == 0) {
-                          print("My Index is ${widget.selectedIndex}");
-                          // Fixed tab logic for skip next
-                          int currentIndex = widget.allcategorymodel
-                              .indexOf(audiomanager.currentMusic!);
-
-                          print(" My real Current Index is ${currentIndex}");
-
-                          if (currentIndex <
-                              widget.allcategorymodel.length - 1) {
-                            playMusic(currentIndex + 1);
-                          } else {
-                            playMusic(0); // Loop back to the first song
-                          }
-                        } else {
-                          print("My dynamic index ${widget.selectedIndex}");
-                          audiomanager
-                              .skipNext(); // Assuming you have a skipNext method in your audioManager
-                        }
-                      },
-                      child: Icon(Icons.skip_next,
-                          size: screenWidth * 0.1,
-                          color: CustomColors.clrwhite),
-                    ),
-
-                    Spacer(),
-                    Icon(Icons.favorite_border_outlined,
-                        size: screenWidth * 0.08, color: CustomColors.clrwhite)
-                  ],
-                ),
-              ),
-            ],
+                );
+              }
+             else {
+                // Handle the case when currentMusic is null
+                return const Center(child: Text("No music selected"));
+              }
+            },
           ),
         );
       },
@@ -992,7 +909,7 @@ class _ShuffleOptionsDialogState extends State<ShuffleOptionsDialog> {
       return Container(
         height: 210,
         width: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20)),
           color: Colors.white,
         ),
@@ -1009,7 +926,7 @@ class _ShuffleOptionsDialogState extends State<ShuffleOptionsDialog> {
                     fontSize: screenWidth * 0.05),
               ),
 
-              Divider(),
+              const Divider(),
 
               Column(
                 mainAxisSize: MainAxisSize.min,
@@ -1024,7 +941,7 @@ class _ShuffleOptionsDialogState extends State<ShuffleOptionsDialog> {
                               fontSize: screenWidth * 0.04,
                               fontWeight: FontWeight.bold,
                               color: CustomColors.clrblack)),
-                      Spacer(),
+                      const Spacer(),
                       Radio<int>(
                         value: indexSelected[0],
                         groupValue: _currentSelectedIndex,
@@ -1050,7 +967,7 @@ class _ShuffleOptionsDialogState extends State<ShuffleOptionsDialog> {
                               fontSize: screenWidth * 0.04,
                               fontWeight: FontWeight.bold,
                               color: CustomColors.clrblack)),
-                      Spacer(),
+                      const Spacer(),
                       Radio<int>(
                         value: indexSelected[1],
                         groupValue: _currentSelectedIndex,

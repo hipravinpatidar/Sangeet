@@ -17,6 +17,8 @@ class AudioPlayerManager extends ChangeNotifier with WidgetsBindingObserver {
   Duration _duration = Duration.zero;
   Duration _currentPosition = Duration.zero;
 
+  bool _isMusicBarVisible = false;
+
   ShuffleMode _shuffleMode = ShuffleMode.playNext;
 
   // Getters
@@ -27,7 +29,23 @@ class AudioPlayerManager extends ChangeNotifier with WidgetsBindingObserver {
   Duration get currentPosition => _currentPosition;
   ShuffleMode get shuffleMode => _shuffleMode;
 
+  bool get isMusicBarVisible => _isMusicBarVisible;
+
+
   // Setters
+
+
+
+  void resetMusicBarVisibility() {
+    _isMusicBarVisible = false;
+  }
+
+  void toggleMusicBarVisibility() {
+    _isMusicBarVisible = !_isMusicBarVisible;
+    notifyListeners();
+  }
+
+
   void setShuffleMode(ShuffleMode mode) {
     _shuffleMode = mode;
     notifyListeners();

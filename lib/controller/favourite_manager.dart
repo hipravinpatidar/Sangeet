@@ -1,27 +1,80 @@
+// import 'package:flutter/foundation.dart';
+// import 'package:sangit/model/sangeet_model.dart';
+//
+// import '../db_helper/db_helper.dart';
+//
+// class FavouriteProvider with ChangeNotifier {
+//   late  List<Sangeet> _favouriteBhajan = [];
+//
+//   List<Sangeet> get favouriteBhajan => _favouriteBhajan;
+//
+//   FavouriteProvider() {
+//     _loadBookmarks();
+//   }
+//
+//   Future<void> _loadBookmarks() async {
+//     _favouriteBhajan = await DBHelper.getBookmarks();
+//     notifyListeners();
+//   }
+//
+//   Future<void> toggleBookmark(Sangeet music) async {
+//     // Check if the shlok is already bookmarked
+//     bool isBookmarked = _favouriteBhajan.any((bookmarked) =>
+//     //bookmarked.verseData?.audioUrl == shlok.verseData?.audioUrl); // Assuming audioUrl is unique
+//     bookmarked.audio == music.audio); // Assuming audioUrl is unique
+//
+//     if (isBookmarked) {
+//       // Remove the bookmark
+//       await DBHelper.deleteBookmark(music);
+//       _favouriteBhajan.removeWhere((bookmarked) =>
+//       bookmarked.audio == music.audio);
+//     } else {
+//       // Add the bookmark
+//       await DBHelper.insertBookmark(music);
+//       _favouriteBhajan.add(music);
+//     }
+//
+//     // Notify listeners after updating bookmarks
+//     notifyListeners();
+//   }
+//
+// }
 
-import 'package:flutter/foundation.dart';
+
+import 'package:flutter/cupertino.dart';
+
+import '../db_helper/db_helper.dart';
 import '../model/sangeet_model.dart';
 
-class FavoriteProvider extends ChangeNotifier {
-  List<Sangeet> _favoriteList = [];
+class FavouriteProvider with ChangeNotifier {
+  late List<Sangeet> _favouriteBhajan = [];
 
-  List<Sangeet> get favoriteList => _favoriteList;
+  List<Sangeet> get favouriteBhajan => _favouriteBhajan;
 
-  void addToFavorites(Sangeet music) {
-    if (!_favoriteList.contains(music)) {
-      _favoriteList.add(music);
-      notifyListeners();
-    }
+  FavouriteProvider() {
+    _loadBookmarks();
   }
 
-  void removeFromFavorites(Sangeet music) {
-    if (_favoriteList.contains(music)) {
-      _favoriteList.remove(music);
-      notifyListeners();
-    }
+  Future<void> _loadBookmarks() async {
+    _favouriteBhajan = await DBHelper.getBookmarks();
+    notifyListeners();
   }
 
-  bool isFavorite(Sangeet music) {
-    return _favoriteList.contains(music);
+  Future<void> toggleBookmark(Sangeet music, {bool isFixedTab = false}) async {
+    // Check if the song is already bookmarked
+    bool isBookmarked = _favouriteBhajan.any((bookmarked) => bookmarked.audio == music.audio);
+
+    if (isBookmarked) {
+      // Remove the bookmark
+      await DBHelper.deleteBookmark(music);
+      _favouriteBhajan.removeWhere((bookmarked) => bookmarked.audio == music.audio);
+    } else {
+      // Add the bookmark
+      await DBHelper.insertBookmark(music);
+      _favouriteBhajan.add(music);
+    }
+
+    // Notify listeners after updating bookmarks
+    notifyListeners();
   }
 }

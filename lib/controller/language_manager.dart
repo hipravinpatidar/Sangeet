@@ -4,14 +4,14 @@ import '../api_service/api_services.dart';
 import '../model/language_model.dart';
 
 class LanguageManager extends ChangeNotifier {
-  String _nameLanguage = "hindi";
-  String get nameLanguage => _nameLanguage;
+  String _selectedLanguage = "hindi";
+  String get selectedLanguage => _selectedLanguage;
 
   void setLanguage(String langName) {
-    _nameLanguage = langName;
+    _selectedLanguage = langName;
     notifyListeners();
 
-    print("My Provider data language $_nameLanguage");
+    print("My Provider data language $_selectedLanguage");
   }
 
   // List of Datum, which represents individual language entries

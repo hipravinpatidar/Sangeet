@@ -10,7 +10,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AudioPlayerManager()),
-        ChangeNotifierProvider(create: (context) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (context) => FavouriteProvider()),
         ChangeNotifierProvider(create: (context) => LanguageManager(),),
       ],
       child: const MyApp(),
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       builder: (BuildContext context, languageManager, Widget? child) {
         return MaterialApp(
             debugShowCheckedModeBanner: false,
-            locale: Locale(languageManager.nameLanguage),
+            locale: Locale(languageManager.selectedLanguage),
             home: const SangitHome(myLanguage: ""));
       },
     );
