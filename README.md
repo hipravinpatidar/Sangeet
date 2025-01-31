@@ -23,23 +23,20 @@ All these features are implemented using Provider state management.
 
 <div style="column-count: 2;">
  
-  ![Homeeng (1)](https://github.com/user-attachments/assets/9f82031e-0bb3-4c3f-9840-fd5f194e7da2)
+  ![Homeeng (1)]![music_home](https://github.com/user-attachments/assets/80e29035-a6a2-4497-a622-27ddebf827b0)
  
-  ![Homehindi](https://github.com/user-attachments/assets/11d7f9bf-10a6-4a21-b759-d62db3bf0d92)
+  ![Listbhajan]![all_music](https://github.com/user-attachments/assets/62c223bd-e14d-4748-98cc-f4d5fd8fc27c)
 
-  ![Listbhajan](https://github.com/user-attachments/assets/2c14e348-1d92-4262-94d6-0c224928b703)
+  ![Language ]![language](https://github.com/user-attachments/assets/14e791fd-6f5b-43e8-8de8-28c300f056b5)
 
-  ![Language ](https://github.com/user-attachments/assets/318c7cc1-f437-4e34-86c9-8bd457f221a5)
+  ![Player]![music_player](https://github.com/user-attachments/assets/ed4a4567-2d5a-403c-a5be-850c45dd8daa)
 
-  ![Player](https://github.com/user-attachments/assets/27f8d26f-ce24-43ab-a9a4-215af382ca33)
-  
-  ![Collapse](https://github.com/user-attachments/assets/333ab77f-3a35-4532-bf38-8de5bd5e440e)
+  ![Collapse]![shuffle_options](https://github.com/user-attachments/assets/5452d1c8-184c-4c76-8fa0-7b69ebd53998)
 
-  ![Musicbar](https://github.com/user-attachments/assets/c82ea61a-93ea-4937-9539-fd81cdfa0c38)
+  ![Share]![share_screen](https://github.com/user-attachments/assets/f2a087d5-4fd7-47e7-8059-ddc087e081a5)
 
-  ![Share](https://github.com/user-attachments/assets/12a01e0a-85f5-4414-a136-e51ac124dfd1)
+  ![Lyrics ]![lyrics_screen](https://github.com/user-attachments/assets/69a8561e-e26f-4523-b31d-ef93e5e213e6)
 
-  ![Lyrics ](https://github.com/user-attachments/assets/31bdc712-3f63-44a6-9c4b-b53787dbe3d2)
 
 
 
