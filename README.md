@@ -1,25 +1,38 @@
-# Music Player App
+[![GitHub stars](https://img.shields.io/github/stars/hipravinpatidar/sangeet?style=social)](https://github.com/hipravinpatidar/sangeet)
+[![Flutter Version](https://img.shields.io/badge/flutter-3.19.5-blue)](https://flutter.dev)
+[![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
 
-This Is My First Sangeet App Which I Created In Flutter, When I Was  In Learning Phase.
-## Getting Started
+My first complete Flutter music player app developed during my learning journey, featuring dynamic API integration and robust state management.
 
-# Key Features
-"This Is Sangeet" app integrates RESTful GET APIs and offers a fully dynamic music experience. It includes functionalities such as:
+## 🎧 Key Features
 
-1) Playing music
-2) Skipping to the next track
-3) Skipping to the previous track
-4) Toggling play and pause
-5) View Lyrics of Music
-6) Full App Changes In Hindi & English 
+### Core Functionality
+- 🎶 **Music Playback** with smooth audio streaming
+- ⏭️ **Track Navigation**: Next/Previous controls
+- ⏯️ **Play/Pause** with state persistence
+- 📜 **Lyrics Display** synchronized with playback
+- 🌐 **Bilingual UI** (Hindi & English) with dynamic language switching
 
-# Shuffle options with the following modes:
-1) Play in loop
-2) Play once and then stop
-3) Automatically play the next track
- 
-All these features are implemented using Provider state management.
+### Advanced Playback Modes
+- 🔁 **Loop Mode**: Continuous playlist looping
+- ▶️ **Single Play**: Play once and stop
+- ⏭️ **Auto-advance**: Seamless track transitions
 
+### Technical Highlights
+- **REST API Integration**: Dynamic content loading via GET APIs
+- 📱 **State Management**: Efficient app-wide state using Provider
+- 🚀 **Performance Optimized**: Smooth UI even with large playlists
+
+## 🛠️ Technical Stack
+
+| Category          | Technologies Used |
+|-------------------|-------------------|
+| Framework         | Flutter (3.19.5)  |
+| State Management  | Provider          |
+| Audio Playback    | audio_manager/just_audio |
+| API Handling      | http          |
+
+## 📸 Screenshots
 <div style="display: flex; overflow-x: auto; gap: 10px; padding: 10px 0;">
 
   <img src="https://github.com/user-attachments/assets/80e29035-a6a2-4497-a622-27ddebf827b0" alt="Home" style="height: 250px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
@@ -38,5 +51,18 @@ All these features are implemented using Provider state management.
 
 </div>
 
+## 🚀 Getting Started
+
+### Prerequisites
+- Flutter SDK (>=3.19.5)
+- Android Studio
+- Dart (>=3.3.0)
+
+### Installation
+```bash
+git clone https://github.com/hipravinpatidar/sangeet.git
+cd sangeet
+flutter pub get
+flutter run
 
 
